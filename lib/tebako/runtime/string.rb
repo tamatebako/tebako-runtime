@@ -25,32 +25,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "fileutils"
-require "pathname"
+# Class String
+class String
+  def quoted?
+    start_with?('"') && end_with?('"')
+  end
 
-require_relative "runtime/version"
-require_relative "runtime/memfs"
+  def unquote
+    chomp('"').reverse.chomp('"').reverse
+  end
 
-# Module TenakoRuntime will help us !
-module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "ffi" => "ffi_alert"
-  }.freeze
-
-  POST_REQUIRE_MAP = {
-    "ffi" => "handlers/ffi"
-  }.freeze
-
-
-  class Error < StandardError; end
-  class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
-
-    def run
-      puts "hello"
-      require_relative "runtime/kernel"
-    end
+  def quote
+    "\"#{self}\""
   end
 end

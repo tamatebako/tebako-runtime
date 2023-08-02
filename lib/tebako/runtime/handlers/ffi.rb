@@ -25,32 +25,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "fileutils"
-require "pathname"
+# HACK: extract temp libraries to use with ffi
+# Wrapper for FFI.map_library_name method
+module FFI
+  puts "It's fantastic"
+  # https://stackoverflow.com/questions/29907157/how-to-alias-a-class-method-in-rails-model/29907207
+  singleton_class.send(:alias_method, :map_library_name_orig, :map_library_name)
 
-require_relative "runtime/version"
-require_relative "runtime/memfs"
-
-# Module TenakoRuntime will help us !
-module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "ffi" => "ffi_alert"
-  }.freeze
-
-  POST_REQUIRE_MAP = {
-    "ffi" => "handlers/ffi"
-  }.freeze
-
-
-  class Error < StandardError; end
-  class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
-
-    def run
-      puts "hello"
-      require_relative "runtime/kernel"
-    end
+  # http://tech.tulentsev.com/2012/02/ruby-how-to-override-class-method-with-a-module/
+  def self.map_library_name(lib)
+    map_library_name_orig(extract_memfs(lib))
   end
 end
+# END of HACK

@@ -25,32 +25,26 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "fileutils"
-require "pathname"
-
-require_relative "runtime/version"
-require_relative "runtime/memfs"
-
-# Module TenakoRuntime will help us !
+# Module TebakoRuntime
 module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "ffi" => "ffi_alert"
-  }.freeze
+end
 
-  POST_REQUIRE_MAP = {
-    "ffi" => "handlers/ffi"
-  }.freeze
+def ffi_alert
+  puts TebakoRuntime.full_gem_path('ffi')
+end
 
+# Provide an alias of the original require
+module Kernel
+  alias original_require require
 
-  class Error < StandardError; end
-  class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
+  # rewrite require
+  def require(name)
+    puts "Hooking #{name}" if name == "ffi"
 
-    def run
-      puts "hello"
-      require_relative "runtime/kernel"
-    end
+    send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
+
+    original_require name
+
+    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
   end
 end

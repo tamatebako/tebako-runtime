@@ -27,30 +27,40 @@
 
 require "fileutils"
 require "pathname"
+require "rubygems"
+require "tempfile"
 
-require_relative "runtime/version"
-require_relative "runtime/memfs"
+require_relative "string"
 
-# Module TenakoRuntime will help us !
+# Module TebakoRuntime
+# Methods to extract files from memfs to temporary folder
 module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "ffi" => "ffi_alert"
-  }.freeze
-
-  POST_REQUIRE_MAP = {
-    "ffi" => "handlers/ffi"
-  }.freeze
-
-
-  class Error < StandardError; end
+  COMPILER_MEMFS = "/__tebako_memfs__"
+  COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("packed-mn-"))
   class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
-
-    def run
-      puts "hello"
-      require_relative "runtime/kernel"
-    end
+  def extract(file, extract_path, wild)
+    files = if wild
+              Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
+            else
+              [file]
+            end
+    FileUtils.cp_r files, extract_path
   end
+
+  def extract_memfs(file, wild: false, extract_path: COMPILER_MEMFS_LIB_CACHE)
+    is_quoted = file.quoted?
+    file = file.unquote if is_quoted
+
+    return file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
+
+    memfs_extracted_file = extract_path + File.basename(file)
+    extract(file, extract_path, wild) unless memfs_extracted_file.exist?
+
+    is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
+  end
+end
+end
+
+at_exit do
+  FileUtils.remove_dir(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_path, true)
 end
