@@ -34,16 +34,16 @@ RSpec.describe TebakoRuntime do
   end
 
   it "extracts single file from memfs" do
-    test_file = File.join(__dir__, "fixtures", "test1.file")
+    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], "/tmp")
 
     TebakoRuntime.extract(test_file, false, "/tmp")
   end
 
   it "extracts files from memfs by wildcard" do
-    test1_file = File.join(__dir__, "fixtures", "test1.file")
-    test2_file = File.join(__dir__, "fixtures", "test2.file")
-    test_files = File.join(__dir__, "fixtures", "*.file")
+    test1_file = File.join(__dir__, "fixtures", "files", "test1.file")
+    test2_file = File.join(__dir__, "fixtures", "files", "test2.file")
+    test_files = File.join(__dir__, "fixtures", "files", "*.file")
 
     expect(FileUtils).to receive(:cp_r).with(array_including(test1_file, test2_file), "/tmp")
 
@@ -56,9 +56,9 @@ RSpec.describe TebakoRuntime do
 
   it "processes a memfs file with defaule settings" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures")
+    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "test1.file")
+    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
 
     ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"))
@@ -68,9 +68,9 @@ RSpec.describe TebakoRuntime do
   it "processes a memfs file with manually set cache folder" do
     cache = Pathname.new(Dir.mktmpdir("test-"))
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures")
+    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "test1.file")
+    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], cache)
 
     ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"), cache_path: cache)
@@ -83,13 +83,47 @@ RSpec.describe TebakoRuntime do
 
   it "processes a memfs file with quoted name" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures")
+    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "test1.file")
+    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
 
     ref = TebakoRuntime.extract_memfs("\"#{File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")}\"")
     expect(ref).to eq("\"#{File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file")}\"")
+  end
+
+  it "provides an option to call a method before 'require'" do
+    require_relative "fixtures/before_require"
+
+    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
+    TebakoRuntime.send(:remove_const, :POST_REQUIRE_MAP)
+
+    TebakoRuntime::PRE_REQUIRE_MAP = {
+      "ffi" => "ffi_alert"
+    }.freeze
+
+    TebakoRuntime::POST_REQUIRE_MAP = {}.freeze
+
+    expect(TebakoRuntime).to receive(:ffi_alert)
+    require "ffi"
+  end
+
+  it "provides an option to add an adaptor after 'require'" do
+    require_relative "../lib/tebako/runtime/adaptors/ffi"
+
+    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
+    TebakoRuntime.send(:remove_const, :POST_REQUIRE_MAP)
+
+    TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
+
+    TebakoRuntime::POST_REQUIRE_MAP = {
+      "ffi" => "runtime/adaptors/ffi"
+    }.freeze
+
+    expect(TebakoRuntime).to receive(:extract_memfs).with("test")
+
+    require "ffi"
+    FFI.map_library_name("test")
   end
 end
 # rubocop:enable Metrics/BlockLength

@@ -28,7 +28,5 @@
 
 require_relative "../lib/tebako/runtime"
 
-TebakoRuntime.run
-
 # test the new require
 require "ffi"

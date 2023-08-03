@@ -33,12 +33,10 @@ require_relative "runtime/memfs"
 
 # Module TenakoRuntime will help us !
 module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "ffi" => "ffi_alert"
-  }.freeze
+  PRE_REQUIRE_MAP = {}.freeze
 
   POST_REQUIRE_MAP = {
-    "ffi" => "handlers/ffi"
+    "ffi" => "runtime/handlers/ffi"
   }.freeze
 
   class Error < StandardError; end
@@ -47,10 +45,20 @@ module TebakoRuntime
     def full_gem_path(gem)
       Gem::Specification.find_by_name(gem).full_gem_path
     end
+  end
+end
 
-    def run
-      puts "hello"
-      require_relative "runtime/kernel"
-    end
+# Some would call it 'monkey patching' but in reality we are adding
+# adaptors to gems that shall be aware that they are running in tebako environment
+module Kernel
+  alias original_require require
+  # We add two additional steps for original require
+  # - an option to call from TebakoRuntime module method 'BEFORE'
+  # - an option to implement adaptor 'AFTER'
+  def require(name)
+    TebakoRuntime.send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
+    res = original_require name
+    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
+    res
   end
 end

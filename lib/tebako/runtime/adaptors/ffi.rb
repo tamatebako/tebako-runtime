@@ -25,26 +25,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Module TebakoRuntime
-module TebakoRuntime
-end
+# Wrapper for FFI.map_library_name method
+# If the library file to be mapped to is within memfs it is extracted to tmp folder
+module FFI
+  # https://stackoverflow.com/questions/29907157/how-to-alias-a-class-method-in-rails-model/29907207
+  singleton_class.send(:alias_method, :map_library_name_orig, :map_library_name)
 
-def ffi_alert
-  puts TebakoRuntime.full_gem_path("ffi")
-end
-
-# Provide an alias of the original require
-module Kernel
-  alias original_require require
-
-  # rewrite require
-  def require(name)
-    puts "Hooking #{name}" if name == "ffi"
-
-    send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
-
-    original_require name
-
-    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
+  # http://tech.tulentsev.com/2012/02/ruby-how-to-override-class-method-with-a-module/
+  def self.map_library_name(lib)
+    map_library_name_orig(TebakoRuntime.extract_memfs(lib))
   end
 end
