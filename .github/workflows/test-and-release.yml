@@ -53,11 +53,11 @@ jobs:
       run: bundle exec rubocop
 
   test:
-    name: Ruby ${{ matrix.ver }} on ${{ matrix.os }}
+    name: Ruby ${{ matrix.ruby_ver }} on ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-20.04' ]
+        os: [ 'ubuntu-20.04', macos-11.0 ]
         ruby_ver: [ '3.0.6', '3.1.4', '3.2.2' ]
     runs-on: ${{ matrix.os }}
 
@@ -70,6 +70,35 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby_ver }}
         bundler-cache: true
+
+    - name: Test
+      run: bundle exec rake
+
+  test-container:
+    name: Ruby on ${{ matrix.os }}
+    container:
+      image: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'alpine:3.16' ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install Ruby
+      shell: bash
+      run:  apk --no-cache --upgrade add ruby
+
+    - name: Install bundler
+      shell: bash
+      run: gem install bundler
+
+    - name: Install bundle
+      shell: bash
+      run: bundle install
 
     - name: Test
       run: bundle exec rake
