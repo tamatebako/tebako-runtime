@@ -103,3 +103,19 @@ jobs:
 
     - name: Test
       run: bundle exec rake
+
+# ----- Release -----
+  release:
+    name: Release gem
+    needs: [ test, test-container ]
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'refs/tags/v')
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        submodules: true
+
+    - uses: cadwallion/publish-rubygems-action@master
+      env:
+        RUBYGEMS_API_KEY: ${{secrets.TEBAKO_CI_RUBYGEMS_API_KEY}}

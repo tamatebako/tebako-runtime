@@ -1,6 +1,7 @@
-= Tebako-runtime: a helper Gem for tebako image packager
+= Tebako-runtime
+== A helper Gem for tebako image packager
 
-image:https://github.com/tamatebako/tebako/actions/workflows/ubuntu.yml/badge.svg["Ubuntu amd64", link="https://github.com/tamatebako/tebako/actions/workflows/ubuntu.yml"]
+image:https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml/badge.svg["Test and release", link="https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml"]
 
 Tebako is an executable packager. It packages a set of files into a DwarFS file
 system for read-only purposes.
