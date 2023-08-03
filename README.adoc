@@ -12,7 +12,7 @@ packaged software from a point in the file system.
 
 Tebako image is essentially a patched Ruby with embedded filesystem as shown in the diagram.
 
-![tebako](https://user-images.githubusercontent.com/2081498/150532110-75b60f61-0dc0-4697-abe9-59133878ae8c.jpg)
+image:https://user-images.githubusercontent.com/2081498/150532110-75b60f61-0dc0-4697-abe9-59133878ae8c.jpg
 
 Inside tebako image there are Ruby gems that acess native extensions and/or external libraries and/or data files.
 
