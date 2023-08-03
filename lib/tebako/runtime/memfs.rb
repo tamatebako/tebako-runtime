@@ -25,17 +25,42 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "bundler/setup"
-require "tebako/runtime"
+require "fileutils"
+require "pathname"
+require "rubygems"
+require "tempfile"
 
-RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+require_relative "string"
 
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
+# Module TebakoRuntime
+# Methods to extract files from memfs to temporary folder
+module TebakoRuntime
+  COMPILER_MEMFS = "/__tebako_memfs__"
+  COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("tebako-runtime-"))
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  class << self
+    def extract(file, wild, extract_path)
+      files = if wild
+                Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
+              else
+                [file]
+              end
+      FileUtils.cp_r files, extract_path
+    end
+
+    def extract_memfs(file, cache_path: COMPILER_MEMFS_LIB_CACHE)
+      is_quoted = file.quoted?
+      file = file.unquote if is_quoted
+      return is_quoted ? file.quote : file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
+
+      memfs_extracted_file = cache_path + File.basename(file)
+      extract(file, false, cache_path) unless memfs_extracted_file.exist?
+
+      is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
+    end
   end
+end
+
+at_exit do
+  FileUtils.remove_dir(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_path, true)
 end

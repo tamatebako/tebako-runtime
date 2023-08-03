@@ -25,17 +25,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "bundler/setup"
-require "tebako/runtime"
+# Wrapper for FFI.map_library_name method
+# If the library file to be mapped to is within memfs it is extracted to tmp folder
+module FFI
+  # https://stackoverflow.com/questions/29907157/how-to-alias-a-class-method-in-rails-model/29907207
+  singleton_class.send(:alias_method, :map_library_name_orig, :map_library_name)
 
-RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
-
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
-
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  # http://tech.tulentsev.com/2012/02/ruby-how-to-override-class-method-with-a-module/
+  def self.map_library_name(lib)
+    map_library_name_orig(TebakoRuntime.extract_memfs(lib))
   end
 end

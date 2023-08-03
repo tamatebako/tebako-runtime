@@ -25,17 +25,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "bundler/setup"
-require "tebako/runtime"
+RSpec.describe String do
+  it "recognizes quoted strings" do
+    expect('"quoted"'.quoted?).to be(true)
+  end
 
-RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  it "recognizes unquoted strings" do
+    expect('"unquoted'.quoted?).to be(false)
+    expect('unquoted"'.quoted?).to be(false)
+    expect("unquoted".quoted?).to be(false)
+  end
 
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
+  it "unquotes strings" do
+    expect('"quoted"'.unquote).to eq("quoted")
+  end
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  it "quotes strings" do
+    expect("unquoted".quote).to eq('"unquoted"')
   end
 end

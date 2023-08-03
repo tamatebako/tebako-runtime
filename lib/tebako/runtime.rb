@@ -1,8 +1,64 @@
-require "tebako/runtime/version"
+# frozen_string_literal: true
 
-module Tebako
-  module Runtime
-    class Error < StandardError; end
-    # Your code goes here...
+# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# All rights reserved.
+# This file is a part of tebako
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+require "fileutils"
+require "pathname"
+
+require_relative "runtime/version"
+require_relative "runtime/memfs"
+
+# Module TenakoRuntime will help us !
+module TebakoRuntime
+  PRE_REQUIRE_MAP = {}.freeze
+
+  POST_REQUIRE_MAP = {
+    "ffi" => "runtime/handlers/ffi"
+  }.freeze
+
+  class Error < StandardError; end
+
+  class << self
+    def full_gem_path(gem)
+      Gem::Specification.find_by_name(gem).full_gem_path
+    end
+  end
+end
+
+# Some would call it 'monkey patching' but in reality we are adding
+# adaptors to gems that shall be aware that they are running in tebako environment
+module Kernel
+  alias original_require require
+  # We add two additional steps for original require
+  # - an option to call from TebakoRuntime module method 'BEFORE'
+  # - an option to implement adaptor 'AFTER'
+  def require(name)
+    TebakoRuntime.send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
+    res = original_require name
+    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
+    res
   end
 end
