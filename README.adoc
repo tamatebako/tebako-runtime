@@ -18,9 +18,9 @@ image:https://user-images.githubusercontent.com/2081498/150532110-75b60f61-0dc0-
 Inside tebako image there are Ruby gems that acess native extensions and/or external libraries and/or data files.
 
 If a gem loads native extension using rubygems features this call is intercepted, a copy extension shared object is placed to host temp folder,
-all further calls to extension are routed to the copy of extension (Line 2 on the diagram)
+all further calls to extension are routed to the copy of extension (Item 2 on the diagram).
 
-Gems and extensions can reference other libraries, executable and data files using native system calls. Tebako cannot intercept such calls and route them correctly to
+Gems and extensions can reference other libraries, executable and data files using native system calls (Item 6). Tebako cannot intercept such calls and route them correctly to
 memory filesystem.  Such Gem shall be aware that they are running in tebako environment and offload required file from memfs to temporary folder.
 
 tebako-runtime (this Gem) provides a set of tools to help Gems to work in tebako environment.
