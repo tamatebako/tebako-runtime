@@ -36,29 +36,29 @@ require_relative "string"
 # Methods to extract files from memfs to temporary folder
 module TebakoRuntime
   COMPILER_MEMFS = "/__tebako_memfs__"
-  COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("packed-mn-"))
+  COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("tebako-runtime-"))
+
   class << self
-  def extract(file, extract_path, wild)
-    files = if wild
-              Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
-            else
-              [file]
-            end
-    FileUtils.cp_r files, extract_path
+    def extract(file, wild, extract_path)
+      files = if wild
+                Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
+              else
+                [file]
+              end
+      FileUtils.cp_r files, extract_path
+    end
+
+    def extract_memfs(file, cache_path: COMPILER_MEMFS_LIB_CACHE)
+      is_quoted = file.quoted?
+      file = file.unquote if is_quoted
+      return is_quoted ? file.quote : file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
+
+      memfs_extracted_file = cache_path + File.basename(file)
+      extract(file, false, cache_path) unless memfs_extracted_file.exist?
+
+      is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
+    end
   end
-
-  def extract_memfs(file, wild: false, extract_path: COMPILER_MEMFS_LIB_CACHE)
-    is_quoted = file.quoted?
-    file = file.unquote if is_quoted
-
-    return file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
-
-    memfs_extracted_file = extract_path + File.basename(file)
-    extract(file, extract_path, wild) unless memfs_extracted_file.exist?
-
-    is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
-  end
-end
 end
 
 at_exit do

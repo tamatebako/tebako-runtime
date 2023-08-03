@@ -41,8 +41,8 @@ module TebakoRuntime
     "ffi" => "handlers/ffi"
   }.freeze
 
-
   class Error < StandardError; end
+
   class << self
     def full_gem_path(gem)
       Gem::Specification.find_by_name(gem).full_gem_path

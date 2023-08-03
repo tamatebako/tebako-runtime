@@ -30,7 +30,7 @@ module TebakoRuntime
 end
 
 def ffi_alert
-  puts TebakoRuntime.full_gem_path('ffi')
+  puts TebakoRuntime.full_gem_path("ffi")
 end
 
 # Provide an alias of the original require

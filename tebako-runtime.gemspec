@@ -9,10 +9,10 @@ Gem::Specification.new do |spec|
   spec.email         = ["open.source@ribose.com"]
   spec.license       = "BSD-2-Clause"
 
-  spec.summary = "Packager for Ruby executables"
+  spec.summary = "Run-time support of tebako exxecutable packager"
   spec.description = <<~SUM
     Tebako (https://github.com/tamatebako/tebako) is an executable packager.
-    This gem provides run-time support for it.
+    tebako-runtime gem implenmnts decorators for Ruby gems that shall be aware that they run in tebako environment.
   SUM
   spec.homepage = "https://github.com/tamatebako/tebako-runtime"
   spec.required_ruby_version = ">= 2.7.0"
@@ -31,5 +31,8 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "rspec", "~> 3.2"
   spec.add_development_dependency "rubocop", "~> 1.52"
+  spec.add_development_dependency "rubocop-rspec"
   spec.add_development_dependency "rubocop-rubycw"
+
+  spec.add_development_dependency "ffi"
 end
