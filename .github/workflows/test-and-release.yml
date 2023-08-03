@@ -89,8 +89,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install Ruby
-      shell: bash
-      run:  apk --no-cache --upgrade add ruby
+      run:  apk --no-cache --upgrade add bash ruby
 
     - name: Install bundler
       shell: bash
