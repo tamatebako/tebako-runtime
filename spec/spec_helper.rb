@@ -26,7 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require "bundler/setup"
-require "tebako/runtime"
+require "tebako-runtime"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

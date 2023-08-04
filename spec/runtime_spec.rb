@@ -54,7 +54,7 @@ RSpec.describe TebakoRuntime do
     expect(TebakoRuntime.extract_memfs("/tmp/test.file")).to eq("/tmp/test.file")
   end
 
-  it "processes a memfs file with defaule settings" do
+  it "processes a memfs file with default settings" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
 
@@ -109,7 +109,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an option to add an adaptor after 'require'" do
-    require_relative "../lib/tebako/runtime/adaptors/ffi"
+    require_relative "../lib/tebako-runtime/adaptors/ffi"
 
     TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
     TebakoRuntime.send(:remove_const, :POST_REQUIRE_MAP)
@@ -117,7 +117,7 @@ RSpec.describe TebakoRuntime do
     TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
 
     TebakoRuntime::POST_REQUIRE_MAP = {
-      "ffi" => "runtime/adaptors/ffi"
+      "ffi" => "tebako-runtime/adaptors/ffi"
     }.freeze
 
     expect(TebakoRuntime).to receive(:extract_memfs).with("test")
