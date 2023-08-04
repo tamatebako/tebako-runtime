@@ -25,47 +25,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "fileutils"
-require "pathname"
+require_relative "../memfs"
 
-require_relative "tebako-runtime/version"
-require_relative "tebako-runtime/memfs"
+# Wrapper for FFI.map_library_name method
+# If the library file to be mapped to is within memfs it is extracted to tmp folder
+module FFI
+  # https://stackoverflow.com/questions/29907157/how-to-alias-a-class-method-in-rails-model/29907207
+  singleton_class.send(:alias_method, :map_library_name_orig, :map_library_name)
 
-# Module TenakoRuntime will help us !
-module TebakoRuntime
-  PRE_REQUIRE_MAP = {}.freeze
-
-  POST_REQUIRE_MAP = {
-    "ffi" => "tebako-runtime/adapters/ffi",
-    "sassc" => "tebako-runtime/adapters/sassc"
-  }.freeze
-
-  class Error < StandardError; end
-
-  class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
-  end
-end
-
-# Some would call it 'monkey patching' but in reality we are adding
-# adapters to gems that shall be aware that they are running in tebako environment
-module Kernel
-  alias original_require require
-  # We add two additional steps for original require
-  # - an option to call from TebakoRuntime module method 'BEFORE'
-  # - an option to implement adapter 'AFTER'
-  def require(name)
-    TebakoRuntime.send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
-    res = original_require name
-    # if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
-    #    puts "Hooking #{name} => #{TebakoRuntime::POST_REQUIRE_MAP[name]}"
-    # else
-    #    puts "Passing #{name}"
-    # end
-    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
-    #  puts "Skipped #{name}" if !res_inner && TebakoRuntime::POST_REQUIRE_MAP.key?(name)
-    res
+  # http://tech.tulentsev.com/2012/02/ruby-how-to-override-class-method-with-a-module/
+  def self.map_library_name(lib)
+    map_library_name_orig(TebakoRuntime.extract_memfs(lib))
   end
 end

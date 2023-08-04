@@ -25,14 +25,42 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Wrapper for FFI.map_library_name method
-# If the library file to be mapped to is within memfs it is extracted to tmp folder
-module FFI
-  # https://stackoverflow.com/questions/29907157/how-to-alias-a-class-method-in-rails-model/29907207
-  singleton_class.send(:alias_method, :map_library_name_orig, :map_library_name)
+require "fileutils"
 
-  # http://tech.tulentsev.com/2012/02/ruby-how-to-override-class-method-with-a-module/
-  def self.map_library_name(lib)
-    map_library_name_orig(TebakoRuntime.extract_memfs(lib))
+require_relative "../memfs"
+
+module SassC
+  # Load style files for sassc
+  class Engine
+    # rubocop:disable Style/ClassVars
+    @@loaded_pathes = []
+    @@loaded_pathes_semaphore = Mutex.new
+    # rubocop:enable Style/ClassVars
+
+    def load_files(path, m_path)
+      FileUtils.mkdir_p(m_path)
+      FileUtils.cp_r(File.join(path, "."), m_path) if File.exist?(path)
+      @@loaded_pathes << m_path
+    end
+
+    def load_path(path, new_paths)
+      if path.start_with?(TebakoRuntime::COMPILER_MEMFS)
+        m_path = path.sub(TebakoRuntime::COMPILER_MEMFS, TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_s)
+        @@loaded_pathes_semaphore.synchronize do
+          load_files(path, m_path) unless @@loaded_pathes.include?(m_path)
+        end
+        new_paths << m_path
+      else
+        new_paths << path
+      end
+    end
+
+    def load_paths
+      paths = (@options[:load_paths] || []) + SassC.load_paths
+      new_paths = []
+      paths.each { |path| load_path path, new_paths }
+      pp = new_paths.join(File::PATH_SEPARATOR) unless new_paths.empty?
+      pp
+    end
   end
 end

@@ -96,34 +96,36 @@ RSpec.describe TebakoRuntime do
     require_relative "fixtures/before_require"
 
     TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
-    TebakoRuntime.send(:remove_const, :POST_REQUIRE_MAP)
-
     TebakoRuntime::PRE_REQUIRE_MAP = {
       "ffi" => "ffi_alert"
     }.freeze
-
-    TebakoRuntime::POST_REQUIRE_MAP = {}.freeze
 
     expect(TebakoRuntime).to receive(:ffi_alert)
     require "ffi"
   end
 
-  it "provides an option to add an adaptor after 'require'" do
-    require_relative "../lib/tebako-runtime/adaptors/ffi"
-
+  it "provides an adapter for ffi gem" do
     TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
-    TebakoRuntime.send(:remove_const, :POST_REQUIRE_MAP)
-
     TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
 
-    TebakoRuntime::POST_REQUIRE_MAP = {
-      "ffi" => "tebako-runtime/adaptors/ffi"
-    }.freeze
-
     expect(TebakoRuntime).to receive(:extract_memfs).with("test")
-
     require "ffi"
     FFI.map_library_name("test")
+  end
+
+  it "provides an adapter for sassc gem" do
+    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
+    TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
+
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = __dir__
+
+    require "sassc"
+    SassC.load_paths << File.join(TebakoRuntime::COMPILER_MEMFS, "fixtures")
+    expect(FileUtils).to receive(:cp_r).with(File.join(TebakoRuntime::COMPILER_MEMFS, "fixtures", "."),
+                                             File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE,
+                                                       "fixtures")).and_call_original
+    SassC::Engine.new("@import 'style/all.scss'", style: :compressed).render
   end
 end
 # rubocop:enable Metrics/BlockLength
