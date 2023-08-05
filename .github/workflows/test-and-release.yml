@@ -83,6 +83,9 @@ jobs:
       matrix:
         os: [ 'alpine:3.16' ]
     runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CXX: clang++
 
     steps:
     - name: Checkout
@@ -91,7 +94,7 @@ jobs:
     - name: Install Ruby
       run: |
         apk --no-cache --upgrade add build-base cmake git bash   \
-        autoconf make binutils-dev pkgconfig tar ruby-dev
+        autoconf make binutils-dev pkgconfig tar ruby-dev clang
 
     - name: Install bundler
       shell: bash

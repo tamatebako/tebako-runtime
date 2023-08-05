@@ -25,41 +25,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "fileutils"
-require_relative "../memfs"
+# Unpack mn2pdf.jar
+module Mn2pdf
+  remove_const("MN2PDF_JAR_PATH")
+  MN2PDF_JAR_PATH = TebakoRuntime.extract_memfs(File.join(TebakoRuntime.full_gem_path("mn2pdf"), "bin", "mn2pdf.jar"))
 
-module SassC
-  # Load style files for sassc
-  class Engine
-    # rubocop:disable Style/ClassVars
-    @@loaded_pathes = []
-    @@loaded_pathes_semaphore = Mutex.new
-    # rubocop:enable Style/ClassVars
+  singleton_class.send(:alias_method, :convert_orig, :convert)
+  singleton_class.send(:remove_method, :convert)
 
-    def load_files(path, m_path)
-      FileUtils.mkdir_p(m_path)
-      FileUtils.cp_r(File.join(path, "."), m_path) if File.exist?(path)
-      @@loaded_pathes << m_path
-    end
-
-    def load_path(path, new_paths)
-      if path.start_with?(TebakoRuntime::COMPILER_MEMFS)
-        m_path = path.sub(TebakoRuntime::COMPILER_MEMFS, TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_s)
-        @@loaded_pathes_semaphore.synchronize do
-          load_files(path, m_path) unless @@loaded_pathes.include?(m_path)
-        end
-        new_paths << m_path
-      else
-        new_paths << path
-      end
-    end
-
-    def load_paths
-      paths = (@options[:load_paths] || []) + SassC.load_paths
-      new_paths = []
-      paths.each { |path| load_path path, new_paths }
-      pp = new_paths.join(File::PATH_SEPARATOR) unless new_paths.empty?
-      pp
-    end
+  def self.convert(url_path, output_path, xsl_stylesheet, options)
+    convert_orig(TebakoRuntime.extract_memfs(url_path), output_path, TebakoRuntime.extract_memfs(xsl_stylesheet),
+                 options)
   end
 end
