@@ -92,31 +92,13 @@ RSpec.describe TebakoRuntime do
     expect(ref).to eq("\"#{File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file")}\"")
   end
 
-  it "provides an option to call a method before 'require'" do
-    require_relative "fixtures/before_require"
-
-    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
-    TebakoRuntime::PRE_REQUIRE_MAP = {
-      "ffi" => "ffi_alert"
-    }.freeze
-
-    expect(TebakoRuntime).to receive(:ffi_alert)
-    require "ffi"
-  end
-
   it "provides an adapter for ffi gem" do
-    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
-    TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
-
     expect(TebakoRuntime).to receive(:extract_memfs).with("test")
     require "ffi"
     FFI.map_library_name("test")
   end
 
   it "provides an adapter for sassc gem" do
-    TebakoRuntime.send(:remove_const, :PRE_REQUIRE_MAP)
-    TebakoRuntime::PRE_REQUIRE_MAP = {}.freeze
-
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = __dir__
 
@@ -126,6 +108,17 @@ RSpec.describe TebakoRuntime do
                                              File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE,
                                                        "fixtures")).and_call_original
     SassC::Engine.new("@import 'style/all.scss'", style: :compressed).render
+  end
+
+  it "provides a pre-processor for seven-zip gem" do
+    sevenz_lib = RUBY_PLATFORM.downcase.match(/mswin|mingw/) ? "7z*.dll" : "7z.so"
+    sevenz_path = File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
+    sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
+
+    expect(FileUtils).to receive(:cp).with(sevenz_path, sevenz_new_folder).and_call_original
+    require "seven_zip_ruby"
+
+    expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
   end
 end
 # rubocop:enable Metrics/BlockLength

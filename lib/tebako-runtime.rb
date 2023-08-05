@@ -30,22 +30,33 @@ require "pathname"
 
 require_relative "tebako-runtime/version"
 require_relative "tebako-runtime/memfs"
+require_relative "tebako-runtime/config"
 
-# Module TenakoRuntime will help us !
+# Module TenakoRuntime
+# Adds two additional steps for original require
+# - an option to run some pre-processing 'BEFORE'
+# - an option to implement adapter 'AFTER'
 module TebakoRuntime
-  PRE_REQUIRE_MAP = {}.freeze
+  PRE_REQUIRE_MAP = {
+    "seven_zip_ruby" => "tebako-runtime/pre/seven-zip"
+  }.freeze
 
   POST_REQUIRE_MAP = {
     "ffi" => "tebako-runtime/adapters/ffi",
     "sassc" => "tebako-runtime/adapters/sassc"
   }.freeze
 
-  class Error < StandardError; end
+  def self.full_gem_path(gem)
+    Gem::Specification.find_by_name(gem).full_gem_path
+  end
 
-  class << self
-    def full_gem_path(gem)
-      Gem::Specification.find_by_name(gem).full_gem_path
-    end
+  def self.process(name, map, title)
+    return !log_enabled unless map.key?(name)
+
+    puts "Tebako runtime: #{title} #{name} => #{map[name]}" if log_enabled
+    res_inner = require_relative map[name]
+    puts "Tebako runtime: skipped #{name}" if log_enabled && !res_inner
+    log_enabled
   end
 end
 
@@ -53,19 +64,12 @@ end
 # adapters to gems that shall be aware that they are running in tebako environment
 module Kernel
   alias original_require require
-  # We add two additional steps for original require
-  # - an option to call from TebakoRuntime module method 'BEFORE'
-  # - an option to implement adapter 'AFTER'
   def require(name)
-    TebakoRuntime.send(TebakoRuntime::PRE_REQUIRE_MAP[name]) if TebakoRuntime::PRE_REQUIRE_MAP.key?(name)
+    f1 = TebakoRuntime.process(name, TebakoRuntime::PRE_REQUIRE_MAP, "pre-processing")
     res = original_require name
-    # if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
-    #    puts "Hooking #{name} => #{TebakoRuntime::POST_REQUIRE_MAP[name]}"
-    # else
-    #    puts "Passing #{name}"
-    # end
-    require_relative TebakoRuntime::POST_REQUIRE_MAP[name] if TebakoRuntime::POST_REQUIRE_MAP.key?(name)
-    #  puts "Skipped #{name}" if !res_inner && TebakoRuntime::POST_REQUIRE_MAP.key?(name)
+    f2 = TebakoRuntime.process(name, TebakoRuntime::POST_REQUIRE_MAP, "attaching an adapter for")
+
+    puts "Tebako runtime: no pre-processing or adapter definitions for #{name}" unless f1 || f2
     res
   end
 end
