@@ -12,7 +12,8 @@ Gem::Specification.new do |spec|
   spec.summary = "Run-time support of tebako exxecutable packager"
   spec.description = <<~SUM
     Tebako (https://github.com/tamatebako/tebako) is an executable packager.
-    tebako-runtime gem implements adapters for Ruby gems that shall be aware that they run in tebako environment.
+    tebako-runtime gem implements adapters for Ruby gems that shall be aware
+    that they run in tebako environment.
   SUM
   spec.homepage = "https://github.com/tamatebako/tebako-runtime"
   spec.required_ruby_version = ">= 2.7.0"
@@ -34,4 +35,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "ffi", "~> 1.15"
   spec.add_development_dependency "sassc", "~> 2.4"
+  spec.add_development_dependency "seven-zip", "~> 1.4"
 end
