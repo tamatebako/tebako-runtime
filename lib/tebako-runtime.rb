@@ -43,6 +43,8 @@ module TebakoRuntime
 
   POST_REQUIRE_MAP = {
     "ffi" => "tebako-runtime/adapters/ffi",
+    "mn2pdf" => "tebako-runtime/adapters/mn2pdf",
+    "mnconvert" => "tebako-runtime/adapters/mnconvert",
     "sassc" => "tebako-runtime/adapters/sassc"
   }.freeze
 
@@ -53,9 +55,9 @@ module TebakoRuntime
   def self.process(name, map, title)
     return !log_enabled unless map.key?(name)
 
-    puts "Tebako runtime: #{title} #{name} => #{map[name]}" if log_enabled
+    puts "Tebako runtime: req/#{title} [#{name} => #{map[name]}]" if log_enabled
     res_inner = require_relative map[name]
-    puts "Tebako runtime: skipped #{name}" if log_enabled && !res_inner
+    puts "Tebako runtime: skipped [#{name}]" if log_enabled && !res_inner
     log_enabled
   end
 end
@@ -65,11 +67,11 @@ end
 module Kernel
   alias original_require require
   def require(name)
-    f1 = TebakoRuntime.process(name, TebakoRuntime::PRE_REQUIRE_MAP, "pre-processing")
+    f1 = TebakoRuntime.process(name, TebakoRuntime::PRE_REQUIRE_MAP, "pre")
     res = original_require name
-    f2 = TebakoRuntime.process(name, TebakoRuntime::POST_REQUIRE_MAP, "attaching an adapter for")
+    f2 = TebakoRuntime.process(name, TebakoRuntime::POST_REQUIRE_MAP, "post")
 
-    puts "Tebako runtime: no pre-processing or adapter definitions for #{name}" unless f1 || f2
+    puts "Tebako runtime: req [#{name}]" unless f1 || f2
     res
   end
 end

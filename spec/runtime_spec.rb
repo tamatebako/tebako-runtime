@@ -98,6 +98,18 @@ RSpec.describe TebakoRuntime do
     FFI.map_library_name("test")
   end
 
+  it "provides an adapter for mn2pdf gem" do
+    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(TebakoRuntime.full_gem_path("mn2pdf"), "bin",
+                                                                    "mn2pdf.jar")).and_call_original
+    require "mn2pdf"
+  end
+
+  it "provides an adapter for mnconvert gem" do
+    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(TebakoRuntime.full_gem_path("mnconvert"), "bin",
+                                                                    "mnconvert.jar")).and_call_original
+    require "mnconvert"
+  end
+
   it "provides an adapter for sassc gem" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = __dir__
