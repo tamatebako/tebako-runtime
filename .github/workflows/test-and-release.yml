@@ -83,9 +83,6 @@ jobs:
       matrix:
         os: [ 'alpine:3.16' ]
     runs-on: ubuntu-latest
-    env:
-      CC: clang
-      CXX: clang++
 
     steps:
     - name: Checkout

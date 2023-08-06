@@ -21,10 +21,11 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/tamatebako/tebako-runtime"
 
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+    `git ls-files --recurse-submodules -z`.split("\x0").reject do |f|
+      (f == __FILE__) ||
+        f.match(%r{\A(?:(?:spec|tmp|\.github)/|\.(?:git|rspec|rubocop|gitignore))})
+    end
   end
   spec.require_paths = ["lib"]
 
@@ -37,5 +38,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "mn2pdf", "~> 1.79"
   spec.add_development_dependency "mnconvert", "~> 1.54"
   spec.add_development_dependency "sassc", "~> 2.4"
-  spec.add_development_dependency "seven-zip", "~> 1.4"
 end
