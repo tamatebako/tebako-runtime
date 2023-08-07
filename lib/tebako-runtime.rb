@@ -30,7 +30,6 @@ require "pathname"
 
 require_relative "tebako-runtime/version"
 require_relative "tebako-runtime/memfs"
-require_relative "tebako-runtime/config"
 
 # Module TenakoRuntime
 # Adds two additional steps for original require
@@ -43,6 +42,7 @@ module TebakoRuntime
 
   POST_REQUIRE_MAP = {
     "ffi" => "tebako-runtime/adapters/ffi",
+    "jing" => "tebako-runtime/adapters/jing",
     "mn2pdf" => "tebako-runtime/adapters/mn2pdf",
     "mnconvert" => "tebako-runtime/adapters/mnconvert",
     "sassc" => "tebako-runtime/adapters/sassc"
@@ -50,6 +50,10 @@ module TebakoRuntime
 
   def self.full_gem_path(gem)
     Gem::Specification.find_by_name(gem).full_gem_path
+  end
+
+  def self.log_enabled
+    @log_enabled ||= false
   end
 
   def self.process(name, map, title)
