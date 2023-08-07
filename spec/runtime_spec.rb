@@ -56,9 +56,9 @@ RSpec.describe TebakoRuntime do
 
   it "processes a memfs file with default settings" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
+    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
+    test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
 
     ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"))
@@ -68,9 +68,9 @@ RSpec.describe TebakoRuntime do
   it "processes a memfs file with manually set cache folder" do
     cache = Pathname.new(Dir.mktmpdir("test-"))
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
+    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
+    test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], cache)
 
     ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"), cache_path: cache)
@@ -83,9 +83,9 @@ RSpec.describe TebakoRuntime do
 
   it "processes a memfs file with quoted name" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS  = File.join(__dir__, "fixtures", "files")
+    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
-    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
+    test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
 
     ref = TebakoRuntime.extract_memfs("\"#{File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")}\"")
@@ -96,6 +96,22 @@ RSpec.describe TebakoRuntime do
     expect(TebakoRuntime).to receive(:extract_memfs).with("test")
     require "ffi"
     FFI.map_library_name("test")
+  end
+
+  it "provides an adapter for jing gem" do
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "jing")
+    test_schema = File.join(TebakoRuntime::COMPILER_MEMFS, "schema.rnc")
+    test_xml = File.join(TebakoRuntime::COMPILER_MEMFS, "valid.xml")
+
+    expect(TebakoRuntime).to receive(:extract_memfs)
+      .with(File.join(TebakoRuntime.full_gem_path("ruby-jing"), "lib",
+                      "jing-20091111.jar")).and_call_original
+    require "jing"
+    expect(TebakoRuntime).to receive(:extract_memfs).with(test_schema, { wild: true }).and_call_original
+    j = Jing.new(test_schema)
+    expect(TebakoRuntime).to receive(:extract_memfs).with(test_xml).and_call_original
+    j.validate(test_xml)
   end
 
   it "provides an adapter for mn2pdf gem" do
