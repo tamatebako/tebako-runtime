@@ -4,24 +4,27 @@
 
 image:https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml/badge.svg["Test and release", link="https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml"]
 
-Tebako is an executable packager. It packages a set of files into a DwarFS file
-system for read-only purposes.
+Tebako is an executable packager. It packages a set of files into a DwarFS file system for read-only purposes.
 
-After packaging the file system into an image, Tebako produces a single
-executable binary that allows the user to execute a selected file from the
-packaged software from a point in the file system.
+After packaging the file system into an image, Tebako produces a single executable binary that allows the user to run a selected file from the packaged filesystem.
 
 Tebako image is essentially a patched Ruby with embedded filesystem as shown in the diagram.
 
 image:https://user-images.githubusercontent.com/2081498/150532110-75b60f61-0dc0-4697-abe9-59133878ae8c.jpg["Tebako architecture", link="https://user-images.githubusercontent.com/2081498/150532110-75b60f61-0dc0-4697-abe9-59133878ae8c.jpg"]
 
-Inside tebako image there are Ruby gems that acess native extensions and/or external libraries and/or data files.
+Inside tebako image there are Ruby gems that can access native extensions. If a gem loads native extension using rubygem features this call is intercepted, a copy extension shared object is placed to
+host temporary folder, all further calls to extension are routed to the copy of extension (Item 2 on the diagram).
 
-If a gem loads native extension using rubygems features this call is intercepted, a copy extension shared object is placed to host temp folder,
-all further calls to extension are routed to the copy of extension (Item 2 on the diagram).
+Gems and extensions can reference other libraries, executable and data files using native system calls (Items 5, 6). Tebako cannot intercept such calls and route them correctly to
+memory filesystem.  Tebako shall offload required file from memfs to temporary folder and reroute system calls as needed.
 
-Gems and extensions can reference other libraries, executable and data files using native system calls (Item 6). Tebako cannot intercept such calls and route them correctly to
-memory filesystem.  Such Gem shall be aware that they are running in tebako environment and offload required file from memfs to temporary folder.
+tebako-runtime (this Gem) provides support for known Gems that use system calls to access executable or data files.
 
-tebako-runtime (this Gem) provides a set of tools to help Gems to work in tebako environment.
-It is intalled automatically by the core tebako packager. There is no need to install it manually.
+== Supported Gems
+
+* https://rubygems.org/gems/ffi[ffi]
+* https://rubygems.org/gems/mn2pdf[mn2pdf]
+* https://rubygems.org/gems/mnconvert[mnconvert]
+* https://rubygems.org/gems/ruby-jing[ruby-jing]
+* https://rubygems.org/gems/sassc[sassc]
+* https://rubygems.org/gems/seven-zip[seven-zip]

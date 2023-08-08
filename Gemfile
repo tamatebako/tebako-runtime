@@ -32,4 +32,4 @@ gemspec
 gem "rake", "~> 12.0"
 
 # https://github.com/fontist/seven_zip_ruby/issues/13
-gem "seven-zip", git: "https://github.com/fontist/seven_zip_ruby.git", tag: "v1.6.2.pre"
+gem "seven-zip", git: "https://github.com/fontist/seven_zip_ruby.git"
