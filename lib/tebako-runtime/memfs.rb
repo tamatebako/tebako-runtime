@@ -48,6 +48,7 @@ module TebakoRuntime
       FileUtils.cp_r files, extract_path
     end
 
+    # wild == true means "also extract other files with the same extension"
     def extract_memfs(file, wild: false, cache_path: COMPILER_MEMFS_LIB_CACHE)
       is_quoted = file.quoted?
       file = file.unquote if is_quoted
