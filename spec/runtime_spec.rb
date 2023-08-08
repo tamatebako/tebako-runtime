@@ -65,6 +65,19 @@ RSpec.describe TebakoRuntime do
     expect(ref).to eq(File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file"))
   end
 
+  it "processes memfs files with the same extension when wild option is given" do
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
+
+    test1_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
+    test2_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test2.file")
+    expect(FileUtils).to receive(:cp_r).with(array_including(test1_file, test2_file),
+                                             TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
+
+    ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"), wild: true)
+    expect(ref).to eq(File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file"))
+  end
+
   it "processes a memfs file with manually set cache folder" do
     cache = Pathname.new(Dir.mktmpdir("test-"))
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
