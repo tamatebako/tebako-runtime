@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["open.source@ribose.com"]
   spec.license       = "BSD-2-Clause"
 
-  spec.summary = "Run-time support of tebako exxecutable packager"
+  spec.summary = "Run-time support of tebako executable packager"
   spec.description = <<~SUM
     Tebako (https://github.com/tamatebako/tebako) is an executable packager.
     tebako-runtime gem implements adapters for Ruby gems that shall be aware
