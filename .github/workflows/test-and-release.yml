@@ -1,4 +1,4 @@
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -59,6 +59,10 @@ jobs:
       matrix:
         os: [ 'ubuntu-20.04', macos-11.0 ]
         ruby_ver: [ '3.0.6', '3.1.4', '3.2.2' ]
+        include:
+          - os: windows-latest
+          - ruby_ver: 3.1.4
+
     runs-on: ${{ matrix.os }}
 
     steps:

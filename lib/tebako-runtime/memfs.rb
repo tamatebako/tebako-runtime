@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -35,7 +35,7 @@ require_relative "string"
 # Module TebakoRuntime
 # Methods to extract files from memfs to temporary folder
 module TebakoRuntime
-  COMPILER_MEMFS = "/__tebako_memfs__"
+  COMPILER_MEMFS = RUBY_PLATFORM =~ /msys|mingw|cygwin/ ? "A:/__tebako_memfs__" : "/__tebako_memfs__"
   COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("tebako-runtime-"))
 
   class << self
