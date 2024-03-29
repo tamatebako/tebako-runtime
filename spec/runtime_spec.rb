@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -33,25 +33,35 @@ RSpec.describe TebakoRuntime do
     expect(TebakoRuntime::VERSION).not_to be nil
   end
 
-  it "extracts single file from memfs" do
-    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
-    expect(FileUtils).to receive(:cp_r).with([test_file], "/tmp")
+  # Temporary directory
+  def tmpdir_name
+    tdm = RUBY_PLATFORM =~ /msys|mingw|cygwin|mswin/ ? ENV.fetch("TEMP", nil) : "/tmp"
+    File.join(tdm, "tebako-test-#{$PROCESS_ID}-#{rand 2**32}").tr("\\", "/")
+  end
 
-    TebakoRuntime.extract(test_file, false, "/tmp")
+  it "extracts single file from memfs" do
+    tmpd = tmpdir_name
+    test_file = File.join(__dir__, "fixtures", "files", "test1.file")
+    expect(FileUtils).to receive(:cp_r).with([test_file], tmpd)
+
+    TebakoRuntime.extract(test_file, false, tmpd)
   end
 
   it "extracts files from memfs by wildcard" do
+    tmpd = tmpdir_name
+
     test1_file = File.join(__dir__, "fixtures", "files", "test1.file")
     test2_file = File.join(__dir__, "fixtures", "files", "test2.file")
     test_files = File.join(__dir__, "fixtures", "files", "*.file")
 
-    expect(FileUtils).to receive(:cp_r).with(array_including(test1_file, test2_file), "/tmp")
+    expect(FileUtils).to receive(:cp_r).with(array_including(test1_file, test2_file), tmpd)
 
-    TebakoRuntime.extract(test_files, true, "/tmp")
+    TebakoRuntime.extract(test_files, true, tmpd)
   end
 
   it "returns unchanged reference to non-memfs file" do
-    expect(TebakoRuntime.extract_memfs("/tmp/test.file")).to eq("/tmp/test.file")
+    tmpd = tmpdir_name
+    expect(TebakoRuntime.extract_memfs("#{tmpd}/test.file")).to eq("#{tmpd}/test.file")
   end
 
   it "processes a memfs file with default settings" do
@@ -91,7 +101,8 @@ RSpec.describe TebakoRuntime do
   end
 
   it "returns unchanged reference to non-memfs file with quoted name" do
-    expect(TebakoRuntime.extract_memfs("\"/tmp/test.file\"")).to eq("\"/tmp/test.file\"")
+    tmpd = tmpdir_name
+    expect(TebakoRuntime.extract_memfs("\"#{tmpd}/test.file\"")).to eq("\"#{tmpd}/test.file\"")
   end
 
   it "processes a memfs file with quoted name" do
