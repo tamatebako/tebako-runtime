@@ -1,4 +1,4 @@
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Ruby
       uses: ruby/setup-ruby@v1
@@ -57,13 +57,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-20.04', macos-11.0 ]
+        os: [ 'ubuntu-20.04', macos-12 ]
         ruby_ver: [ '3.0.6', '3.1.4', '3.2.2' ]
+        include:
+          - os: windows-latest
+            ruby_ver: '3.1.4'
+
     runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Ruby
       uses: ruby/setup-ruby@v1
@@ -81,18 +85,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'alpine:3.16' ]
+        os: [ 'alpine:3.17' ]
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Ruby
       run: |
         apk --no-cache --upgrade add build-base cmake git bash   \
         autoconf make binutils-dev pkgconfig tar ruby-dev        \
-        openjdk10-jre-headless
+        openjdk10-jre-headless linux-headers
 
     - name: Install bundler
       shell: bash
@@ -112,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'refs/tags/v')
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
         submodules: true
