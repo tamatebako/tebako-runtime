@@ -34,6 +34,8 @@ module TebakoRuntime
   sevenz_path = File.join(full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib)
   sevenz_new_folder = COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
   FileUtils.mkdir_p(sevenz_new_folder)
-  FileUtils.cp(sevenz_path, sevenz_new_folder)
+  Dir.glob(sevenz_path).each do |file|
+    FileUtils.cp(file, sevenz_new_folder)
+  end
   $LOAD_PATH.unshift(COMPILER_MEMFS_LIB_CACHE)
 end
