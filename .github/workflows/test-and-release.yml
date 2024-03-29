@@ -96,7 +96,7 @@ jobs:
       run: |
         apk --no-cache --upgrade add build-base cmake git bash   \
         autoconf make binutils-dev pkgconfig tar ruby-dev        \
-        openjdk10-jre-headless
+        openjdk10-jre-headless linux-headers
 
     - name: Install bundler
       shell: bash
