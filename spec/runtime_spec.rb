@@ -150,6 +150,22 @@ RSpec.describe TebakoRuntime do
     require "mnconvert"
   end
 
+  it "provides an adapter for net/http gem" do
+    tfile = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib", "cert", "cacert.pem.mozilla")
+    expect(TebakoRuntime).to receive(:extract_memfs).with(tfile).and_call_original
+    require "net/http"
+
+    uri = URI('https://github.com/fontist/source-fonts/releases/download/v1.0/source-fonts-1.0.zip')
+    http = Net::HTTP.new(uri.host, uri.port)
+
+    expect(http).to receive(:use_ssl=).with(true).and_call_original
+
+    http.use_ssl=true
+
+    expect(http.ca_file).to eq(tfile)
+    expect(http.verify_mode).to eq(OpenSSL::SSL::VERIFY_PEER)
+  end
+
   it "provides an adapter for sassc gem" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = __dir__

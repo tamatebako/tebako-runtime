@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -45,6 +45,7 @@ module TebakoRuntime
     "jing" => "tebako-runtime/adapters/jing",
     "mn2pdf" => "tebako-runtime/adapters/mn2pdf",
     "mnconvert" => "tebako-runtime/adapters/mnconvert",
+    "net/http" => "tebako-runtime/adapters/net-http",
     "sassc" => "tebako-runtime/adapters/sassc"
   }.freeze
 
