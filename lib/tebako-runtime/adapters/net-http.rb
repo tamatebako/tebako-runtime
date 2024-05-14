@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -30,7 +30,6 @@ CACERT_PEM_TMP = TebakoRuntime.extract_memfs(CACERT_PEM)
 
 Net::HTTP.class_eval do
   alias_method :_use_ssl=, :use_ssl=
-
 
   def use_ssl=(boolean)
     self.ca_file = CACERT_PEM_TMP

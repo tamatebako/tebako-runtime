@@ -155,12 +155,12 @@ RSpec.describe TebakoRuntime do
     expect(TebakoRuntime).to receive(:extract_memfs).with(tfile).and_call_original
     require "net/http"
 
-    uri = URI('https://github.com/fontist/source-fonts/releases/download/v1.0/source-fonts-1.0.zip')
+    uri = URI("https://github.com/tamatebako/tebako-runtime/archive/refs/tags/v0.2.0.tar.gz")
     http = Net::HTTP.new(uri.host, uri.port)
 
     expect(http).to receive(:use_ssl=).with(true).and_call_original
 
-    http.use_ssl=true
+    http.use_ssl = true
 
     expect(http.ca_file).to eq(tfile)
     expect(http.verify_mode).to eq(OpenSSL::SSL::VERIFY_PEER)
