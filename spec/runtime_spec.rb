@@ -151,6 +151,9 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for net/http gem" do
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib")
+
     tfile = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib", "cert", "cacert.pem.mozilla")
     expect(TebakoRuntime).to receive(:extract_memfs).with(tfile).and_call_original
     require "net/http"
@@ -162,7 +165,7 @@ RSpec.describe TebakoRuntime do
 
     http.use_ssl = true
 
-    expect(http.ca_file).to eq(tfile)
+    expect(http.ca_file).to eq(File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "cacert.pem.mozilla"))
     expect(http.verify_mode).to eq(OpenSSL::SSL::VERIFY_PEER)
   end
 
