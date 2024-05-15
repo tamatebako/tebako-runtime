@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,34 +25,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
-require "rubocop/rake_task"
+CACERT_PEM = File.expand_path("#{__dir__}/../../cert/cacert.pem.mozilla")
+CACERT_PEM_TMP = TebakoRuntime.extract_memfs(CACERT_PEM)
 
-require "net/http"
-require "fileutils"
+Net::HTTP.class_eval do
+  alias_method :_use_ssl=, :use_ssl=
 
-namespace :build do
-  desc "Download cacert.pem"
-  task :download_cacert do
-    url = URI("https://curl.se/ca/cacert.pem")
-    FileUtils.mkdir_p("cert")
-    Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
-      request = Net::HTTP::Get.new url
-      http.request request do |response|
-        open "cert/cacert.pem.mozilla", "w" do |io|
-          response.read_body do |chunk|
-            io.write chunk
-          end
-        end
-      end
-    end
+  def use_ssl=(boolean)
+    self.ca_file = CACERT_PEM_TMP
+    self.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    self._use_ssl = boolean
   end
 end
-
-task build: "build:download_cacert"
-
-task default: ["build:download_cacert", :spec]
-
-RSpec::Core::RakeTask.new(:spec)
-RuboCop::RakeTask.new
