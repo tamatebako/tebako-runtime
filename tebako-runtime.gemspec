@@ -52,6 +52,7 @@ Gem::Specification.new do |spec|
         f.match(%r{\A(?:(?:spec|tmp|\.github)/|\.(?:git|rspec|rubocop|gitignore))})
     end
   end
+  spec.files += Dir.glob("lib/cert/*")
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "rspec", "~> 3.2"
