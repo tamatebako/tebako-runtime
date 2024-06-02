@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,6 +25,37 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module TebakoRuntime
-  VERSION = "0.5.0"
+# rubocop:disable Metrics/BlockLength
+RSpec.describe TebakoRuntime do
+  it "provides a stub for ffi gem in pass through mode on Windows" do
+    if RUBY_PLATFORM =~ /msys|mingw|cygwin/
+      if defined?(FFI)
+        FFI::Platform.send(:remove_const, :OS)
+        FFI::Platform.send(:remove_const, :ARCH)
+        FFI::Platform.send(:remove_const, :LIBPREFIX)
+        FFI::Platform.send(:remove_const, :LIBSUFFIX)
+        FFI::Platform.send(:remove_const, :PASS_THROUGH)
+      end
+      ENV["TEBAKO_PASS_THROUGH"] = "1"
+      require "ffi"
+
+      expect(defined?(FFI::Platform::OS)).to_not be_nil
+      expect(defined?(FFI::Platform::ARCH)).to_not be_nil
+      expect(defined?(FFI::Platform::LIBPREFIX)).to_not be_nil
+      expect(defined?(FFI::Platform::LIBSUFFIX)).to_not be_nil
+      expect(FFI::Platform::PASS_THROUGH).to eq(true)
+    end
+  end
+
+  after do
+    if RUBY_PLATFORM =~ /msys|mingw|cygwin/
+      ENV.delete("TEBAKO_PASS_THROUGH")
+      FFI::Platform.send(:remove_const, :OS)
+      FFI::Platform.send(:remove_const, :ARCH)
+      FFI::Platform.send(:remove_const, :LIBPREFIX)
+      FFI::Platform.send(:remove_const, :LIBSUFFIX)
+      FFI::Platform.send(:remove_const, :PASS_THROUGH)
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

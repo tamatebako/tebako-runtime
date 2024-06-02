@@ -65,6 +65,31 @@ module TebakoRuntime
     puts "Tebako runtime: skipped [#{name}]" if log_enabled && !res_inner
     log_enabled
   end
+
+  def self.process_all(name)
+    f1 = process(name, PRE_REQUIRE_MAP, "pre")
+    res = original_require name
+    f2 = process(name, POST_REQUIRE_MAP, "post")
+
+    puts "Tebako runtime: req [#{name}]" unless f1 || f2
+    res
+  end
+
+  # Very special deploy-time patching
+  # It targets ffi-compiler/ffi-compiler2 that use some functions of
+  # deployed ffi to process other gems
+  # THis approach is not compatible with tebako on Windows because ffi
+  # is deployed with (inplib) reference to target tebako package that is
+  # not available at deploy time
+  def self.process_pass_through(name)
+    if name == "ffi" && RUBY_PLATFORM =~ /msys|mingw|cygwin/
+      puts "Replacing ffi ffi-platform-stub" if log_enabled
+      res = original_require "tebako-runtime/pass-through/ffi-platform-stub"
+    else
+      res = original_require name
+    end
+    res
+  end
 end
 
 # Some would call it 'monkey patching' but in reality we are adding
@@ -72,11 +97,10 @@ end
 module Kernel
   alias original_require require
   def require(name)
-    f1 = TebakoRuntime.process(name, TebakoRuntime::PRE_REQUIRE_MAP, "pre")
-    res = original_require name
-    f2 = TebakoRuntime.process(name, TebakoRuntime::POST_REQUIRE_MAP, "post")
-
-    puts "Tebako runtime: req [#{name}]" unless f1 || f2
-    res
+    if ENV["TEBAKO_PASS_THROUGH"]
+      TebakoRuntime.process_pass_through name
+    else
+      TebakoRuntime.process_all name
+    end
   end
 end
