@@ -182,7 +182,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides a pre-processor for seven-zip gem" do
-    sevenz_libs = RUBY_PLATFORM.downcase.match(/mswin|msys|cygwin|mingw/) ? ["7z.dll", "7z64.dll"] : ["7z.so"]
+    sevenz_libs = RUBY_PLATFORM =~ /msys|mingw|cygwin/ ? ["7z.dll", "7z64.dll"] : ["7z.so"]
     sevenz_libs.each do |sevenz_lib|
       sevenz_path = File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
       sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
