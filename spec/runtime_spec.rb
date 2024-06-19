@@ -187,9 +187,18 @@ RSpec.describe TebakoRuntime do
       sevenz_path = File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
       sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
 
-      expect(FileUtils).to receive(:cp).with(sevenz_path, sevenz_new_folder).and_call_original
+      expect(FileUtils).to receive(:cp) do |source, destination|
+        if RUBY_PLATFORM =~ /msys|mingw|cygwin/
+          expect(source.casecmp(sevenz_path)).to eq(0) # Case-insensitive comparison for Windows
+          expect(destination.casecmp(sevenz_new_folder)).to eq(0)
+        else
+          expect(source).to eq(sevenz_path) # Case-sensitive comparison for other platforms
+          expect(destination).to eq(sevenz_new_folder)
+        end
+      end.and_call_original
     end
-    require "seven_zip_ruby"
+
+    require "excavate"
 
     expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
   end

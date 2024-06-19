@@ -54,7 +54,7 @@ module TebakoRuntime
   end
 
   def self.log_enabled
-    @log_enabled ||= false
+    @log_enabled ||= true
   end
 
   def self.process(name, map, title)

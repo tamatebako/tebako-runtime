@@ -52,7 +52,9 @@ end
 
 task build: "build:download_cacert"
 
-task default: ["build:download_cacert", :spec]
+task spec: "build:download_cacert"
+
+task default: :spec
 
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new
