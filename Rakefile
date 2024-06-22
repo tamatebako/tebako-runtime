@@ -35,14 +35,17 @@ require "fileutils"
 namespace :build do
   desc "Download cacert.pem"
   task :download_cacert do
-    url = URI("https://curl.se/ca/cacert.pem")
-    FileUtils.mkdir_p("lib/cert")
-    Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
-      request = Net::HTTP::Get.new url
-      http.request request do |response|
-        open "lib/cert/cacert.pem.mozilla", "w" do |io|
-          response.read_body do |chunk|
-            io.write chunk
+    unless File.exist?("lib/cert/cacert.pem.mozilla")
+
+      url = URI("https://curl.se/ca/cacert.pem")
+      FileUtils.mkdir_p("lib/cert")
+      Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
+        request = Net::HTTP::Get.new url
+        http.request request do |response|
+          open "lib/cert/cacert.pem.mozilla", "w" do |io|
+            response.read_body do |chunk|
+              io.write chunk
+            end
           end
         end
       end

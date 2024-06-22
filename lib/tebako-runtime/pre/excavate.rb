@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,18 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require_relative "../memfs"
-require_relative "../../tebako-runtime"
+# For some reason on Windows an attempt to require "seven_zip_ruby" from excavate fails
+# I cannot debug it effectively because of https://github.com/tamatebako/tebako/issues/119
 
-# Fix path for 7zip load
-module TebakoRuntime
-  sevenz_lib = RUBY_PLATFORM.downcase.match(/mswin|mingw/) ? "7z*.dll" : "7z.so"
-  sevenz_path = File.join(full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib)
-  sevenz_paths = Dir.glob(sevenz_path)
-  sevenz_new_folder = COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
-  FileUtils.mkdir_p(sevenz_new_folder)
-  sevenz_paths.each do |file|
-    FileUtils.cp(file, sevenz_new_folder)
-  end
-  $LOAD_PATH.unshift(COMPILER_MEMFS_LIB_CACHE.to_s)
-end
+require "seven_zip_ruby"

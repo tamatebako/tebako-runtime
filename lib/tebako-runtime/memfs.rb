@@ -35,7 +35,7 @@ require_relative "string"
 # Module TebakoRuntime
 # Methods to extract files from memfs to temporary folder
 module TebakoRuntime
-  COMPILER_MEMFS = RUBY_PLATFORM =~ /msys|mingw|cygwin/ ? "A:/__tebako_memfs__" : "/__tebako_memfs__"
+  COMPILER_MEMFS = RUBY_PLATFORM =~ /mswin|mingw/ ? "A:/__tebako_memfs__" : "/__tebako_memfs__"
   COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("tebako-runtime-"))
 
   class << self

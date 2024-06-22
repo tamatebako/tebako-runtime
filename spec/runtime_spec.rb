@@ -29,6 +29,8 @@ require "pathname"
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe TebakoRuntime do
+  let(:tmpd) { tmpdir_name }
+
   it "has a version number" do
     expect(TebakoRuntime::VERSION).not_to be nil
   end
@@ -40,7 +42,6 @@ RSpec.describe TebakoRuntime do
   end
 
   it "extracts single file from memfs" do
-    tmpd = tmpdir_name
     test_file = File.join(__dir__, "fixtures", "files", "test1.file")
     expect(FileUtils).to receive(:cp_r).with([test_file], tmpd)
 
@@ -48,8 +49,6 @@ RSpec.describe TebakoRuntime do
   end
 
   it "extracts files from memfs by wildcard" do
-    tmpd = tmpdir_name
-
     test1_file = File.join(__dir__, "fixtures", "files", "test1.file")
     test2_file = File.join(__dir__, "fixtures", "files", "test2.file")
     test_files = File.join(__dir__, "fixtures", "files", "*.file")
@@ -60,7 +59,6 @@ RSpec.describe TebakoRuntime do
   end
 
   it "returns unchanged reference to non-memfs file" do
-    tmpd = tmpdir_name
     expect(TebakoRuntime.extract_memfs("#{tmpd}/test.file")).to eq("#{tmpd}/test.file")
   end
 
@@ -98,10 +96,11 @@ RSpec.describe TebakoRuntime do
 
     ref = TebakoRuntime.extract_memfs(File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file"), cache_path: cache)
     expect(ref).to eq(File.join(cache, "test1.file"))
+
+    FileUtils.remove_dir(cache, true)
   end
 
   it "returns unchanged reference to non-memfs file with quoted name" do
-    tmpd = tmpdir_name
     expect(TebakoRuntime.extract_memfs("\"#{tmpd}/test.file\"")).to eq("\"#{tmpd}/test.file\"")
   end
 
@@ -182,13 +181,13 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides a pre-processor for seven-zip gem" do
-    sevenz_libs = RUBY_PLATFORM =~ /msys|mingw|cygwin/ ? ["7z.dll", "7z64.dll"] : ["7z.so"]
+    sevenz_libs = RUBY_PLATFORM =~ /mswin|mingw/ ? ["7z.dll", "7z64.dll"] : ["7z.so"]
     sevenz_libs.each do |sevenz_lib|
       sevenz_path = File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
       sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
 
       expect(FileUtils).to receive(:cp) do |source, destination|
-        if RUBY_PLATFORM =~ /msys|mingw|cygwin/
+        if RUBY_PLATFORM =~ /mswin|mingw/
           expect(source.casecmp(sevenz_path)).to eq(0) # Case-insensitive comparison for Windows
           expect(destination.casecmp(sevenz_new_folder)).to eq(0)
         else
@@ -198,9 +197,9 @@ RSpec.describe TebakoRuntime do
       end.and_call_original
     end
 
-    require "excavate"
+    require "seven_zip_ruby"
 
-    expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE)
+    expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_s)
   end
 end
 # rubocop:enable Metrics/BlockLength

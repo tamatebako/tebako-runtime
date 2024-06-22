@@ -60,7 +60,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-rspec", "~> 2.23"
   spec.add_development_dependency "rubocop-rubycw", "~> 0.1"
 
-  spec.add_development_dependency "excavate", "~> 0.3"
   spec.add_development_dependency "ffi", "~> 1.15"
   spec.add_development_dependency "mn2pdf", "~> 1.79"
   spec.add_development_dependency "mnconvert", "~> 1.54"
