@@ -37,6 +37,7 @@ require_relative "tebako-runtime/memfs"
 # - an option to implement adapter 'AFTER'
 module TebakoRuntime
   PRE_REQUIRE_MAP = {
+    "excavate" => "tebako-runtime/pre/excavate",
     "seven_zip_ruby" => "tebako-runtime/pre/seven-zip"
   }.freeze
 
@@ -79,10 +80,10 @@ module TebakoRuntime
   # It targets ffi-compiler/ffi-compiler2 that use some functions of
   # deployed ffi to process other gems
   # THis approach is not compatible with tebako on Windows because ffi
-  # is deployed with (inplib) reference to target tebako package that is
+  # is deployed with (implib) reference to target tebako package that is
   # not available at deploy time
   def self.process_pass_through(name)
-    if name == "ffi" && RUBY_PLATFORM =~ /msys|mingw|cygwin/
+    if name == "ffi" && RUBY_PLATFORM =~ /mswin|mingw/
       puts "Replacing ffi ffi-platform-stub" if log_enabled
       res = original_require "tebako-runtime/pass-through/ffi-platform-stub"
     else
