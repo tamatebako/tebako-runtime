@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,6 +25,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module TebakoRuntime
-  VERSION = "0.5.2"
+module Sinatra
+  class Application
+    # Alias the original caller_files method to keep a reference to it
+    class << self
+      alias original_caller_files caller_files
+
+      def caller_files
+        # Call the original caller_files method to get the original array
+        original_list = original_caller_files
+        # Filter out entries ending with 'tebako-runtime'
+        original_list.reject { |file| file.end_with?("tebako-runtime.rb") }
+      end
+    end
+    # Overwrite :app_file setting after caller_files has been redefined
+    # originally defined as 'set :app_file, caller_files.first || $0' in Sinatra::Base
+    # so it does not necessarily point to 'tebak-runtime.rb'
+    set :app_file, caller_files.first if app_file.end_with?("tebako-runtime.rb")
+  end
 end

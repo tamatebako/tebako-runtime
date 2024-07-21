@@ -201,5 +201,15 @@ RSpec.describe TebakoRuntime do
 
     expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_s)
   end
+
+  it "provides an adapter for sinatra gem" do
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = __dir__
+
+    require "sinatra"
+
+    expect(Sinatra::Application.app_file).to eq(File.expand_path(__FILE__))
+    Sinatra::Application.run = false
+  end
 end
 # rubocop:enable Metrics/BlockLength

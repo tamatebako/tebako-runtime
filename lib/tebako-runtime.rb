@@ -47,7 +47,8 @@ module TebakoRuntime
     "mn2pdf" => "tebako-runtime/adapters/mn2pdf",
     "mnconvert" => "tebako-runtime/adapters/mnconvert",
     "net/http" => "tebako-runtime/adapters/net-http",
-    "sassc" => "tebako-runtime/adapters/sassc"
+    "sassc" => "tebako-runtime/adapters/sassc",
+    "sinatra" => "tebako-runtime/adapters/sinatra"
   }.freeze
 
   def self.full_gem_path(gem)
