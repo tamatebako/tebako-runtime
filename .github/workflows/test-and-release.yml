@@ -60,15 +60,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-20.04' ]
-        ruby_ver: [ '2.7.8', '3.0.7', '3.1.6', '3.2.4', '3.3.3', '3.3.4' ]
+        os: [ 'ubuntu-20.04', 'macos-14', 'windows-latest' ]
+        ruby_ver: [ '2.7.8', '3.0.7', '3.1.6', '3.2.4', '3.2.5', '3.3.3', '3.3.4' ]
         include:
-          - os: windows-latest
-            ruby_ver: '3.1.6'
           - os: macos-12
-            ruby_ver: '3.1.6'
-          - os: macos-14
-            ruby_ver: '3.1.6'
+            ruby_ver: '3.2.4'
 
     runs-on: ${{ matrix.os }}
 
@@ -86,7 +82,7 @@ jobs:
       run: bundle exec rake
 
     - name: Upload coverage to Codecov
-      if: matrix.os == 'ubuntu-20.04' && matrix.ruby_ver == '3.2.4'
+      if: matrix.ruby_ver == '3.2.4'
       uses: codecov/codecov-action@v4
       with:
         token: ${{ env.CODECOV_TOKEN }}
@@ -98,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'alpine:3.17' ]
+        os: [ 'alpine:3.17', 'alpine:3.19' ]
     runs-on: ubuntu-latest
 
     steps:
