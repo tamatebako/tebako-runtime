@@ -65,5 +65,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "mnconvert", "~> 1.54"
   spec.add_development_dependency "ruby-jing", "~> 0.0.3"
   spec.add_development_dependency "sassc", "~> 2.4"
+  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "simplecov-cobertura"
   spec.add_development_dependency "sinatra", "~> 4.0"
 end

@@ -35,6 +35,9 @@ concurrency:
   group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
+env:
+  CODECOV_TOKEN: 66eec255-1b3b-40a9-9ac3-30d76233c812
+
 jobs:
   rubocop:
     name: Rubocop
@@ -82,6 +85,12 @@ jobs:
     - name: Test
       run: bundle exec rake
 
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-20.04' && matrix.ruby_ver == '3.2.4'
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ env.CODECOV_TOKEN }}
+
   test-container:
     name: Ruby on ${{ matrix.os }}
     container:
@@ -100,7 +109,7 @@ jobs:
       run: |
         apk --no-cache --upgrade add build-base cmake git bash   \
         autoconf make binutils-dev pkgconfig tar ruby-dev        \
-        openjdk10-jre-headless linux-headers
+        openjdk11-jre-headless linux-headers
 
     - name: Install bundler
       shell: bash
