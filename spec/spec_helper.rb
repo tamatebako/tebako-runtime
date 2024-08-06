@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -26,6 +26,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require "bundler/setup"
+
+require "simplecov"
+SimpleCov.start
+
+require "simplecov-cobertura"
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
 require "tebako-runtime"
 
 RSpec.configure do |config|

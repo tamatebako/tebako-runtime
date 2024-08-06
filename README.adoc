@@ -3,6 +3,7 @@
 == A helper Gem for tebako image packager
 
 image:https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml/badge.svg["Test and release", link="https://github.com/maxirmx/tebako-runtime/actions/workflows/test-and-release.yml"]
+image:https://codecov.io/gh/tamatebako/tebako-runtime/graph/badge.svg?token=CXNsUymRsM["Test coverage", link="https://codecov.io/gh/tamatebako/tebako-runtime"]
 
 Tebako is an executable packager. It packages a set of files into a DwarFS file system for read-only purposes.
 
