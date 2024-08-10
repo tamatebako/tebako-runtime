@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require "pathname"
+require "tebako-runtime"
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe TebakoRuntime do
