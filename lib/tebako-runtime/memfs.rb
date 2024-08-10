@@ -35,33 +35,46 @@ require_relative "string"
 # Module TebakoRuntime
 # Methods to extract files from memfs to temporary folder
 module TebakoRuntime
+  def self.initialize_compiler_memfs_lib_cache
+    Pathname.new(Dir.mktmpdir("tebako-runtime-"))
+  rescue StandardError
+    return nil unless defined?($tebako_original_pwd) && !$tebako_original_pwd.nil? # rubocop:disable Style/GlobalVars
+
+    begin
+      Pathname.new(Dir.mktmpdir("tebako-runtime-", $tebako_original_pwd)) # rubocop:disable Style/GlobalVars
+    rescue StandardError
+      nil
+    end
+  end
+
   COMPILER_MEMFS = RUBY_PLATFORM =~ /mswin|mingw/ ? "A:/__tebako_memfs__" : "/__tebako_memfs__"
-  COMPILER_MEMFS_LIB_CACHE = Pathname.new(Dir.mktmpdir("tebako-runtime-"))
+  COMPILER_MEMFS_LIB_CACHE = initialize_compiler_memfs_lib_cache
+  exit if COMPILER_MEMFS_LIB_CACHE.nil?
 
-  class << self
-    def extract(file, wild, extract_path)
-      files = if wild
-                Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
-              else
-                [file]
-              end
-      FileUtils.cp_r files, extract_path
-    end
+  def self.extract(file, wild, extract_path)
+    files = if wild
+              Dir.glob("#{File.dirname(file)}/*#{File.extname(file)}")
+            else
+              [file]
+            end
+    FileUtils.cp_r files, extract_path
+  end
 
-    # wild == true means "also extract other files with the same extension"
-    def extract_memfs(file, wild: false, cache_path: COMPILER_MEMFS_LIB_CACHE)
-      is_quoted = file.quoted?
-      file = file.unquote if is_quoted
-      return is_quoted ? file.quote : file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
+  # wild == true means "also extract other files with the same extension"
+  def self.extract_memfs(file, wild: false, cache_path: COMPILER_MEMFS_LIB_CACHE)
+    is_quoted = file.quoted?
+    file = file.unquote if is_quoted
+    return is_quoted ? file.quote : file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
 
-      memfs_extracted_file = cache_path + File.basename(file)
-      extract(file, wild, cache_path) unless memfs_extracted_file.exist?
+    memfs_extracted_file = cache_path + File.basename(file)
+    extract(file, wild, cache_path) unless memfs_extracted_file.exist?
 
-      is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
-    end
+    is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
   end
 end
 
 at_exit do
+  return if TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.nil?
+
   FileUtils.remove_dir(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_path, true)
 end

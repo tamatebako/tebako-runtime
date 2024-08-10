@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require "tebako-runtime"
+
 # rubocop:disable Metrics/BlockLength
 RSpec.describe TebakoRuntime do
   it "provides a stub for ffi gem in pass through mode on Windows" do
