@@ -32,11 +32,11 @@ RSpec.describe TebakoRuntime do
   it "provides a stub for ffi gem in pass through mode on Windows" do
     if RUBY_PLATFORM =~ /msys|mingw|cygwin/
       if defined?(FFI)
-        FFI::Platform.send(:remove_const, :OS)
-        FFI::Platform.send(:remove_const, :ARCH)
-        FFI::Platform.send(:remove_const, :LIBPREFIX)
-        FFI::Platform.send(:remove_const, :LIBSUFFIX)
-        FFI::Platform.send(:remove_const, :PASS_THROUGH)
+        FFI::Platform.send(:remove_const, :OS) if Object.const_defined?(:OS)
+        FFI::Platform.send(:remove_const, :ARCH) if Object.const_defined?(:ARCH)
+        FFI::Platform.send(:remove_const, :LIBPREFIX) if Object.const_defined?(:LIBPREFIX)
+        FFI::Platform.send(:remove_const, :LIBSUFFIX) if Object.const_defined?(:LIBSUFFIX)
+        FFI::Platform.send(:remove_const, :PASS_THROUGH) if Object.const_defined?(:PASS_THROUGH)
       end
       ENV["TEBAKO_PASS_THROUGH"] = "1"
       require "ffi"
@@ -52,11 +52,11 @@ RSpec.describe TebakoRuntime do
   after do
     if RUBY_PLATFORM =~ /msys|mingw|cygwin/
       ENV.delete("TEBAKO_PASS_THROUGH")
-      FFI::Platform.send(:remove_const, :OS)
-      FFI::Platform.send(:remove_const, :ARCH)
-      FFI::Platform.send(:remove_const, :LIBPREFIX)
-      FFI::Platform.send(:remove_const, :LIBSUFFIX)
-      FFI::Platform.send(:remove_const, :PASS_THROUGH)
+      FFI::Platform.send(:remove_const, :OS) if Object.const_defined?(:OS)
+      FFI::Platform.send(:remove_const, :ARCH) if Object.const_defined?(:ARCH)
+      FFI::Platform.send(:remove_const, :LIBPREFIX) if Object.const_defined?(:LIBPREFIX)
+      FFI::Platform.send(:remove_const, :LIBSUFFIX) if Object.const_defined?(:LIBSUFFIX)
+      FFI::Platform.send(:remove_const, :PASS_THROUGH) if Object.const_defined?(:PASS_THROUGH)
     end
   end
 end

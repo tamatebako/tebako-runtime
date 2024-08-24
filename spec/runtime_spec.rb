@@ -64,7 +64,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "processes a memfs file with default settings" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
     test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
@@ -75,7 +75,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "processes memfs files with the same extension when wild option is given" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
     test1_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
@@ -89,7 +89,7 @@ RSpec.describe TebakoRuntime do
 
   it "processes a memfs file with manually set cache folder" do
     cache = Pathname.new(Dir.mktmpdir("test-"))
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
     test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
@@ -106,7 +106,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "processes a memfs file with quoted name" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "files")
 
     test_file = File.join(TebakoRuntime::COMPILER_MEMFS, "test1.file")
@@ -123,7 +123,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for jing gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "jing")
     test_schema = File.join(TebakoRuntime::COMPILER_MEMFS, "schema.rnc")
     test_xml = File.join(TebakoRuntime::COMPILER_MEMFS, "valid.xml")
@@ -139,9 +139,12 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for mn2pdf gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(TebakoRuntime.full_gem_path("mn2pdf"), "bin",
-                                                                    "mn2pdf.jar")).and_call_original
+    fake_jar_path = "/tmp/mn2pdf.jar"
+    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(
+                                                            TebakoRuntime.full_gem_path("mn2pdf"), "bin", "mn2pdf.jar"
+                                                          )).and_return(fake_jar_path)
     require "mn2pdf"
+    expect(Jvm::MN2PDF_JAR_PATH).to eq(fake_jar_path)
   end
 
   it "provides an adapter for mnconvert gem" do
@@ -151,7 +154,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for net/http gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib")
 
     tfile = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib", "cert", "cacert.pem.mozilla")
@@ -170,7 +173,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for sassc gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = __dir__
 
     require "sassc"
@@ -204,7 +207,7 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for sinatra gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS)
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = __dir__
 
     require "sinatra"

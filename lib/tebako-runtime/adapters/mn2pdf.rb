@@ -26,10 +26,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Unpack mn2pdf.jar
-module Mn2pdf
-  remove_const("MN2PDF_JAR_PATH")
-  MN2PDF_JAR_PATH = TebakoRuntime.extract_memfs(File.join(TebakoRuntime.full_gem_path("mn2pdf"), "bin", "mn2pdf.jar"))
 
+module TebakoRuntime
+  MN2PDF_J_PATH = TebakoRuntime.extract_memfs(File.join(TebakoRuntime.full_gem_path("mn2pdf"), "bin",
+                                                        "mn2pdf.jar"))
+end
+
+if Mn2pdf.const_defined?("MN2PDF_JAR_PATH")
+  module Mn2pdf
+    remove_const("MN2PDF_JAR_PATH")
+    MN2PDF_JAR_PATH = TebakoRuntime::MN2PDF_J_PATH
+  end
+end
+
+if Jvm.const_defined?("MN2PDF_JAR_PATH")
+  module Jvm
+    remove_const("MN2PDF_JAR_PATH")
+    MN2PDF_JAR_PATH = TebakoRuntime::MN2PDF_J_PATH
+  end
+end
+
+module Mn2pdf
   singleton_class.send(:alias_method, :convert_orig, :convert)
   singleton_class.send(:remove_method, :convert)
 
