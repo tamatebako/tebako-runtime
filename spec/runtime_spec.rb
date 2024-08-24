@@ -191,15 +191,15 @@ RSpec.describe TebakoRuntime do
     end
     sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
 
-    expect(FileUtils).to receive(:cp).exactly(sevenz_libs.size).times.and_wrap_original do |original_method, source, destination|
+    expect(FileUtils).to receive(:cp).exactly(sevenz_libs.size).times.and_wrap_original do |orig, source, destination|
       if RUBY_PLATFORM =~ /mswin|mingw/
         expect(sevenz_paths.map(&:downcase)).to include(source.downcase) # Case-insensitive comparison for Windows
-        expect(destination.casecmp(sevenz_new_folder)).to eq(0)
+        expect(destination.to_s.casecmp(sevenz_new_folder.to_s)).to eq(0)
       else
         expect(sevenz_paths).to include(source) # Case-sensitive comparison for other platforms
         expect(destination).to eq(sevenz_new_folder)
       end
-      original_method.call(source, destination)
+      orig.call(source, destination)
     end
 
     require "seven_zip_ruby"
