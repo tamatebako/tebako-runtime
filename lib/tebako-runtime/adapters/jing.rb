@@ -28,7 +28,7 @@
 # Unpack jing.jar
 class Jing
   tmp = DEFAULT_JAR
-  remove_const("DEFAULT_JAR")
+  remove_const("DEFAULT_JAR") if const_defined?("DEFAULT_JAR")
   DEFAULT_JAR = TebakoRuntime.extract_memfs(tmp)
 
   alias original_initialize initialize

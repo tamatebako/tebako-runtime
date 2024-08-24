@@ -27,7 +27,7 @@
 
 # Unpack mn2pdf.jar
 module MnConvert
-  remove_const("MNCONVERT_JAR_PATH")
+  remove_const("MNCONVERT_JAR_PATH") if const_defined?("MNCONVERT_JAR_PATH")
   MNCONVERT_JAR_PATH = TebakoRuntime.extract_memfs(File.join(TebakoRuntime.full_gem_path("mnconvert"), "bin",
                                                              "mnconvert.jar"))
 
