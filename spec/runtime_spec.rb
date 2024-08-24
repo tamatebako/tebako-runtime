@@ -186,19 +186,20 @@ RSpec.describe TebakoRuntime do
 
   it "provides a pre-processor for seven-zip gem" do
     sevenz_libs = RUBY_PLATFORM =~ /mswin|mingw/ ? ["7z.dll", "7z64.dll"] : ["7z.so"]
-    sevenz_libs.each do |sevenz_lib|
-      sevenz_path = File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
-      sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
+    sevenz_paths = sevenz_libs.map do |sevenz_lib|
+      File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
+    end
+    sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
 
-      expect(FileUtils).to receive(:cp) do |source, destination|
-        if RUBY_PLATFORM =~ /mswin|mingw/
-          expect(source.casecmp(sevenz_path)).to eq(0) # Case-insensitive comparison for Windows
-          expect(destination.casecmp(sevenz_new_folder)).to eq(0)
-        else
-          expect(source).to eq(sevenz_path) # Case-sensitive comparison for other platforms
-          expect(destination).to eq(sevenz_new_folder)
-        end
-      end.and_call_original
+    expect(FileUtils).to receive(:cp).exactly(sevenz_libs.size).times.and_wrap_original do |orig, source, destination|
+      if RUBY_PLATFORM =~ /mswin|mingw/
+        expect(sevenz_paths.map(&:downcase)).to include(source.downcase) # Case-insensitive comparison for Windows
+        expect(destination.to_s.casecmp(sevenz_new_folder.to_s)).to eq(0)
+      else
+        expect(sevenz_paths).to include(source) # Case-sensitive comparison for other platforms
+        expect(destination).to eq(sevenz_new_folder)
+      end
+      orig.call(source, destination)
     end
 
     require "seven_zip_ruby"
