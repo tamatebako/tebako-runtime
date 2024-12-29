@@ -117,6 +117,13 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for ffi gem" do
+    expect(TebakoRuntime).to receive(:extract_memfs).with("test_fiddle")
+    require "fiddle"
+    expect(Fiddle::Handle).to receive(:new).and_return(double("Fiddle::Handle"))
+    Fiddle.dlopen("test_fiddle")
+  end
+
+  it "provides an adapter for ffi gem" do
     expect(TebakoRuntime).to receive(:extract_memfs).with("test")
     require "ffi"
     FFI.map_library_name("test")

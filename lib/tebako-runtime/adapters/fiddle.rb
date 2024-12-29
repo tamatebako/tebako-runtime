@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,6 +25,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module TebakoRuntime
-  VERSION = "0.5.5.rc1"
+require_relative "../memfs"
+
+# Wrapper for Fiddle.dlopen method
+# If the library file to be mapped to is within memfs it is extracted to tmp folder
+module Fiddle
+  singleton_class.send(:alias_method, :dlopen_orig, :dlopen)
+
+  def self.dlopen(lib)
+    dlopen_orig(TebakoRuntime.extract_memfs(lib))
+  end
 end
