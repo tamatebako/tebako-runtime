@@ -24,6 +24,7 @@ tebako-runtime (this Gem) provides support for known Gems that use system calls 
 == Supported Gems
 
 * https://rubygems.org/gems/excavate/[excavate]
+* https://rubygems.org/gems/fiddle[fiddle]
 * https://rubygems.org/gems/ffi[ffi]
 * https://rubygems.org/gems/jing[jing]
 * https://rubygems.org/gems/mn2pdf[mn2pdf]
