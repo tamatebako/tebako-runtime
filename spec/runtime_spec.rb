@@ -165,6 +165,10 @@ RSpec.describe TebakoRuntime do
     TebakoRuntime::COMPILER_MEMFS = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib")
 
     tfile = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib", "cert", "cacert.pem.mozilla")
+    if RUBY_PLATFORM =~ /mswin|mingw/
+      allow(TebakoRuntime).to receive(:extract_memfs).with("kernel32.dll").and_call_original
+      allow(TebakoRuntime).to receive(:extract_memfs).with("advapi32.dll").and_call_original
+    end
     expect(TebakoRuntime).to receive(:extract_memfs).with(tfile).and_call_original
     require "net/http"
 
