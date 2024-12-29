@@ -116,7 +116,7 @@ RSpec.describe TebakoRuntime do
     expect(ref).to eq("\"#{File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file")}\"")
   end
 
-  it "provides an adapter for ffi gem" do
+  it "provides an adapter for fiddle gem" do
     expect(TebakoRuntime).to receive(:extract_memfs).with("test_fiddle")
     require "fiddle"
     expect(Fiddle::Handle).to receive(:new).and_return(double("Fiddle::Handle"))
@@ -124,9 +124,9 @@ RSpec.describe TebakoRuntime do
   end
 
   it "provides an adapter for ffi gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with("test")
+    expect(TebakoRuntime).to receive(:extract_memfs).with("test_ffi")
     require "ffi"
-    FFI.map_library_name("test")
+    FFI.map_library_name("test_ffi")
   end
 
   it "provides an adapter for jing gem" do
