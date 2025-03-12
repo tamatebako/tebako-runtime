@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2025 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -21,7 +21,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.name: test-and-release
+# POSSIBILITY OF SUCH DAMAGE.
 
 name: test-and-release
 
@@ -49,7 +49,7 @@ jobs:
     - name: Install Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 3.3.6
+        ruby-version: 3.3.7
         bundler-cache: true
 
     - name: Rubocop
@@ -60,13 +60,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-20.04', 'macos-14', 'windows-latest' ]
-        ruby_ver: [ '2.7.8', '3.0.7', '3.1.6', '3.2.6', '3.3.6' ]
-        include:
-          - os: macos-13
-            ruby_ver: '3.4.1'
-          - os: ubuntu-20.04
-            ruby_ver: '3.4.1'
+        os: [ 'ubuntu-22.04', 'macos-13', 'macos-14', 'windows-latest' ]
+        ruby_ver: [ '2.7.8', '3.0.7', '3.1.6', '3.2.7', '3.3.7', '3.4.1' ]
 
     runs-on: ${{ matrix.os }}
 
@@ -84,7 +79,7 @@ jobs:
       run: bundle exec rake
 
     - name: Upload coverage to Codecov
-      if: matrix.ruby_ver == '3.3.6'
+      if: matrix.ruby_ver == '3.3.7'
       uses: codecov/codecov-action@v4
       with:
         token: ${{ env.CODECOV_TOKEN }}
