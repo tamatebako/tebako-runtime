@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2025 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2025 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of tebako
 #
@@ -25,39 +25,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
-require "rubocop/rake_task"
+require_relative "../memfs"
+require_relative "../../tebako-runtime"
 
-require "net/http"
-require "fileutils"
-
-namespace :build do
-  desc "Download cacert.pem"
-  task :download_cacert do
-    unless File.exist?("lib/cert/cacert.pem.mozilla")
-
-      url = URI("https://curl.se/ca/cacert.pem")
-      FileUtils.mkdir_p("lib/cert")
-      Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == "https") do |http|
-        request = Net::HTTP::Get.new url
-        http.request request do |response|
-          open "lib/cert/cacert.pem.mozilla", "w" do |io|
-            response.read_body do |chunk|
-              io.write chunk
-            end
-          end
-        end
-      end
-    end
-  end
+# just offload wxruby3 gem to the compiler cache
+module TebakoRuntime
+  wxruby3_path = full_gem_path("wxruby3")
+  Dir.glob(File.join(wxruby3_path, "*"))
+  wxruby3_new_folder = COMPILER_MEMFS_LIB_CACHE / "wxruby3"
+  FileUtils.mkdir_p(wxruby3_new_folder)
+  FileUtils.cp_r(wxruby3_path, wxruby3_new_folder)
+  puts "#{wxruby3_path} copied to #{wxruby3_new_folder}"
+  gets
+  $LOAD_PATH.unshift(wxruby3_new_folder.to_s)
 end
-
-task build: "build:download_cacert"
-
-task spec: "build:download_cacert"
-
-desc "Run tests and linting"
-task check: [:spec, :rubocop]
-
-task default: :check

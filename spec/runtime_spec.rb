@@ -234,5 +234,14 @@ RSpec.describe TebakoRuntime do
     expect(Sinatra::Application.app_file).to eq(File.expand_path(__FILE__))
     Sinatra::Application.run = false
   end
+
+  it "provides an adapter for wxRuby3 gem" do
+    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
+    TebakoRuntime::COMPILER_MEMFS = __dir__
+
+    require "wx"
+
+  end
+
 end
 # rubocop:enable Metrics/BlockLength

@@ -38,7 +38,8 @@ require_relative "tebako-runtime/memfs"
 module TebakoRuntime
   PRE_REQUIRE_MAP = {
     "excavate" => "tebako-runtime/pre/excavate",
-    "seven_zip_ruby" => "tebako-runtime/pre/seven-zip"
+    "seven_zip_ruby" => "tebako-runtime/pre/seven-zip",
+    "wx" => "tebako-runtime/pre/wxruby3"
   }.freeze
 
   POST_REQUIRE_MAP = {

@@ -69,4 +69,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "simplecov-cobertura"
   spec.add_development_dependency "sinatra", "~> 4.0"
+  spec.add_development_dependency "wxruby3", "~> 1.5.0", ">= 1.5.1"
 end
