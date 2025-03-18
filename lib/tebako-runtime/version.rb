@@ -26,5 +26,5 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 module TebakoRuntime
-  VERSION = "0.6.0"
+  VERSION = "0.7.0"
 end
