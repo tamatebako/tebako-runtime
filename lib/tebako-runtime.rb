@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2023-2024 [Ribose Inc](https://www.ribose.com).
+# Copyright (c) 2023-2025 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
 # This file is a part of the Tebako project.
 #
@@ -81,7 +81,7 @@ module TebakoRuntime
   # Very special deploy-time patching
   # It targets ffi-compiler/ffi-compiler2 that use some functions of
   # deployed ffi to process other gems
-  # THis approach is not compatible with tebako on Windows because ffi
+  # This approach is not compatible with tebako on Windows because ffi
   # is deployed with (implib) reference to target tebako package that is
   # not available at deploy time
   def self.process_pass_through(name)
@@ -92,6 +92,13 @@ module TebakoRuntime
       res = original_require name
     end
     res
+  end
+
+  def self.set_bundle_gemfile
+    return if ENV["TEBAKO_PASS_THROUGH"]
+
+    bundle_gemfile = File.join(COMPILER_MEMFS, ".bundle", "Gemfile")
+    ENV["BUNDLE_GEMFILE"] = bundle_gemfile if File.exist?(bundle_gemfile)
   end
 end
 
