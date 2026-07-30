@@ -57,7 +57,8 @@ module TebakoRuntime
 
   def self.embedded_path?(path)
     return path.start_with?(COMPILER_MEMFS) if MEMFS_STAT_FN.nil?
-    MEMFS_STAT_FN.call(path, MEMFS_STAT_BUF) == 0 || path.start_with?(COMPILER_MEMFS)
+
+    MEMFS_STAT_FN.call(path, MEMFS_STAT_BUF).zero? || path.start_with?(COMPILER_MEMFS)
   end
 
   def self.initialize_compiler_memfs_lib_cache
