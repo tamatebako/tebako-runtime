@@ -36,6 +36,11 @@ class Jing
 
   def initialize(schema, options = nil)
     original_initialize(TebakoRuntime.extract_memfs(schema, wild: true), options)
+    # ruby-jing captures `:default => DEFAULT_JAR` at class-load time —
+    # before this adapter replaced the constant with the extracted host
+    # path. Force the extracted path per-instance (a nil option hash
+    # leaves @options empty, and the builder's stale default would win).
+    @options[:jar] = DEFAULT_JAR
   end
 
   def validate(xml)

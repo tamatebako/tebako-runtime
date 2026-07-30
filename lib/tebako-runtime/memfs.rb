@@ -29,12 +29,37 @@ require "fileutils"
 require "pathname"
 require "rubygems"
 require "tempfile"
+require "fiddle"
 
 require_relative "string"
 
 # Module TebakoRuntime
 # Methods to extract files from memfs to temporary folder
 module TebakoRuntime
+  # The v2 multi-mount world: an extractable path is one HELD by the TFS
+  # mounts (the env image at COMPILER_MEMFS, payloads at their declared
+  # points) — the compiled-in prefix can no longer express it. The
+  # runtime executable's own tebako_fs_stat is the discriminator: it
+  # answers only mounted content (0); host paths (and jail-denied ones)
+  # answer otherwise. Fiddle::Handle::DEFAULT addresses the process
+  # image WITHOUT this gem's own fiddle adapter (dlopen(nil) routes
+  # through it and chokes on the nil).
+  MEMFS_STAT_FN = begin
+    Fiddle::Function.new(Fiddle::Handle::DEFAULT["tebako_fs_stat"],
+                         [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VOIDP], Fiddle::TYPE_INT)
+  rescue StandardError
+    nil
+  end
+
+  # struct stat is at most 512 bytes on every supported platform
+  # (darwin-arm64 and linux x86_64 use 144).
+  MEMFS_STAT_BUF = "\0".b * 512
+
+  def self.embedded_path?(path)
+    return path.start_with?(COMPILER_MEMFS) if MEMFS_STAT_FN.nil?
+    MEMFS_STAT_FN.call(path, MEMFS_STAT_BUF) == 0 || path.start_with?(COMPILER_MEMFS)
+  end
+
   def self.initialize_compiler_memfs_lib_cache
     Pathname.new(Dir.mktmpdir("tebako-runtime-"))
   rescue StandardError
@@ -64,7 +89,7 @@ module TebakoRuntime
   def self.extract_memfs(file, wild: false, cache_path: COMPILER_MEMFS_LIB_CACHE)
     is_quoted = file.quoted?
     file = file.unquote if is_quoted
-    return is_quoted ? file.quote : file unless File.exist?(file) && file.start_with?(COMPILER_MEMFS)
+    return is_quoted ? file.quote : file unless File.exist?(file) && embedded_path?(file)
 
     memfs_extracted_file = cache_path + File.basename(file)
     extract(file, wild, cache_path) unless memfs_extracted_file.exist?
