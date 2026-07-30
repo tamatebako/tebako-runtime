@@ -24,6 +24,13 @@ Gemspec/RequireMFA:
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
 
+# The adapters reopen classes/modules on purpose (the monkey-patch
+# adapter pattern: a hook file per consumer gem).
+Style/OneClassPerFile:
+  Exclude:
+    - 'lib/tebako-runtime.rb'
+    - 'lib/tebako-runtime/adapters/**/*.rb'
+
 Layout/LineLength:
   Max: 120
 
