@@ -41,9 +41,28 @@ class Jing
     # path. Force the extracted path per-instance (a nil option hash
     # leaves @options empty, and the builder's stale default would win).
     @options[:jar] = DEFAULT_JAR
+    # The mounted openjdk toolkit payload's java wins over PATH (the
+    # memfs-binary exec path; the bare "java" keeps the PATH answer).
+    @options[:java] = TebakoRuntime.mounted_exe("openjdk", "java")
   end
 
   def validate(xml)
     original_validate(TebakoRuntime.extract_memfs(xml))
+  end
+
+  # The spawn shape, array form (the stock execute() backticks a shell
+  # string, which the tebako spawn hook deliberately skips; the mounted
+  # java only execs through the hook from an absolute-path array spawn).
+  def execute(options)
+    cmd = [options[:java]]
+    cmd += options[:java_opts].split if options[:java_opts]
+    cmd += ["-jar", options[:jar].to_s]
+    cmd << "-c" if options[:compact]
+    cmd += ["-e", options[:encoding]] if options[:encoding]
+    cmd << "-i" if options[:id_check]
+    cmd += [options[:schema].to_s, options[:xmlfile].to_s]
+    IO.popen(cmd, err: %i[child out], &:read)
+  rescue SystemCallError => e
+    raise ExecutionError, "jing execution failed: #{e}"
   end
 end

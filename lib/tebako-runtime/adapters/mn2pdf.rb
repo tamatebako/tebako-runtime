@@ -55,3 +55,50 @@ module Mn2pdf
                  options)
   end
 end
+
+# The java resolution + the spawn shape (the memfs-binary exec path):
+# when the openjdk toolkit payload is mounted, its /opt/openjdk/bin/java
+# wins over PATH; the spawn is the ARRAY form — the shell form
+# (`Open3.capture3(string)`) goes through /bin/sh, which the tebako
+# spawn hook deliberately skips.
+module Jvm
+  singleton_class.send(:alias_method, :run_orig, :run)
+  singleton_class.send(:remove_method, :run)
+
+  def self.run(args = [])
+    java = TebakoRuntime.mounted_exe("openjdk", "java")
+    return run_orig(args) if java == "java"
+
+    # The stock form joins everything into a SHELL string: values ride
+    # shell-quoted (whole-value and inner forms), and legacy callers pass
+    # whole fragments in one element (`--param baseassetpath="/dir"`).
+    # The array spawn needs shell-word rules applied — split on unquoted
+    # spaces, shed the quotes — exactly what the shell did with the
+    # stock string.
+    clean = args.flat_map { |a| TebakoRuntime.shell_split(a.to_s) }
+    cmd = [java, *options, "-jar", MN2PDF_JAR_PATH.to_s, *clean]
+    puts cmd.join(" ")
+    Open3.capture3(*cmd).then { |stdout, stderr, status| [stdout, stderr, status] }
+  end
+end
+
+# options_to_cmd's joined form (`--param "k=v"` in ONE shell word) is
+# shell-string machinery; the array spawn takes flag and value as
+# separate elements with the shell quotes removed. Stock behavior
+# stands for the PATH java.
+module Mn2pdf
+  singleton_class.send(:alias_method, :options_to_cmd_orig, :options_to_cmd)
+  singleton_class.send(:remove_method, :options_to_cmd)
+
+  def self.options_to_cmd(options, cmd)
+    return options_to_cmd_orig(options, cmd) if TebakoRuntime.mounted_exe("openjdk", "java") == "java"
+
+    options.each do |k, v|
+      if k.to_s.end_with?("=")
+        cmd << "#{k}#{v.to_s.delete('"')}"
+      else
+        cmd << k.to_s << v.to_s.delete('"')
+      end
+    end
+  end
+end

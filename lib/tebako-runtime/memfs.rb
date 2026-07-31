@@ -97,6 +97,29 @@ module TebakoRuntime
 
     is_quoted ? memfs_extracted_file.to_path.quote : memfs_extracted_file.to_path
   end
+
+  # The mounted-toolkit resolution (spec 03 §2.2): an executable the
+  # named toolkit payload provides at its declared mount. Returns the
+  # in-image absolute path when the mounts hold it (the spawn hook
+  # execs those through dlmap2file + the preload), the bare name
+  # otherwise (the consumer's PATH answer stands).
+  #
+  #   TebakoRuntime.mounted_exe("openjdk", "java")
+  #   # => "/opt/openjdk/bin/java" when the openjdk payload is mounted,
+  #        else "java"
+  def self.mounted_exe(toolkit, name)
+    mounted = "/opt/#{toolkit}/bin/#{name}"
+    embedded_path?(mounted) ? mounted : name
+  end
+
+  # Shell-word split for the array spawn (the memfs-binary exec path):
+  # legacy adapters compose arguments as a SHELL fragment in ONE element
+  # (`--param baseassetpath="/dir"`), and shell-quoted whole values ride
+  # as single elements. Split on unquoted spaces, then shed the quotes —
+  # exactly the shell's own word rules (a quoted space never splits).
+  def self.shell_split(word)
+    word.scan(/"([^"]*)"|(\S+)/).map { |quoted, bare| quoted || bare }
+  end
 end
 
 at_exit do
