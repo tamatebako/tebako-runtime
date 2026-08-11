@@ -28,4 +28,7 @@
 # For some reason on Windows an attempt to require "seven_zip_ruby" from excavate fails
 # I cannot debug it effectively because of https://github.com/tamatebako/tebako/issues/119
 
-require "seven_zip_ruby"
+# Only legacy excavate loads seven_zip_ruby; omnizip-era excavate has no
+# seven-zip gem at all — wiring it then would crash the require chain
+# with Gem::MissingSpecError (metanorma dogfood, 2026-08-11).
+require "seven_zip_ruby" if Gem::Specification.find_all_by_name("seven-zip").any?

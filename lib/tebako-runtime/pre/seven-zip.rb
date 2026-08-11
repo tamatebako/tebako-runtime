@@ -28,15 +28,20 @@
 require_relative "../memfs"
 require_relative "../../tebako-runtime"
 
-# Fix path for 7zip load
+# Fix path for 7zip load.
+# Legacy-excavate only: omnizip-era excavate ships no seven-zip gem —
+# when it is absent there is nothing to excavate, so the hook is a
+# no-op (never a Gem::MissingSpecError — metanorma dogfood, 2026-08-11).
 module TebakoRuntime
-  sevenz_lib = RUBY_PLATFORM.downcase.match(/mswin|mingw/) ? "7z*.dll" : "7z.so"
-  sevenz_path = File.join(full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib)
-  sevenz_paths = Dir.glob(sevenz_path)
-  sevenz_new_folder = COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
-  FileUtils.mkdir_p(sevenz_new_folder)
-  sevenz_paths.each do |file|
-    FileUtils.cp(file, sevenz_new_folder)
+  if Gem::Specification.find_all_by_name("seven-zip").any?
+    sevenz_lib = RUBY_PLATFORM.downcase.match(/mswin|mingw/) ? "7z*.dll" : "7z.so"
+    sevenz_path = File.join(full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib)
+    sevenz_paths = Dir.glob(sevenz_path)
+    sevenz_new_folder = COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
+    FileUtils.mkdir_p(sevenz_new_folder)
+    sevenz_paths.each do |file|
+      FileUtils.cp(file, sevenz_new_folder)
+    end
+    $LOAD_PATH.unshift(COMPILER_MEMFS_LIB_CACHE.to_s)
   end
-  $LOAD_PATH.unshift(COMPILER_MEMFS_LIB_CACHE.to_s)
 end
