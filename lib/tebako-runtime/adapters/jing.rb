@@ -53,7 +53,7 @@ class Jing
   # The spawn shape, array form (the stock execute() backticks a shell
   # string, which the tebako spawn hook deliberately skips; the mounted
   # java only execs through the hook from an absolute-path array spawn).
-  def execute(options)
+  def execute(options) # rubocop:disable Metrics/AbcSize
     cmd = [options[:java]]
     cmd += options[:java_opts].split if options[:java_opts]
     cmd += ["-jar", options[:jar].to_s]
