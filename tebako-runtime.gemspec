@@ -62,9 +62,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "ffi", "~> 1.15"
   spec.add_development_dependency "fiddle", "~> 1.0"
-  spec.add_development_dependency "mn2pdf", "~> 1.79"
-  spec.add_development_dependency "mnconvert", "~> 1.54"
-  spec.add_development_dependency "ruby-jing", "~> 0.0.3"
   spec.add_development_dependency "sassc", "~> 2.4"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "simplecov-cobertura"
