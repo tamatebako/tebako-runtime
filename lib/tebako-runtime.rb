@@ -42,11 +42,6 @@ module TebakoRuntime
   }.freeze
 
   POST_REQUIRE_MAP = {
-    "ffi" => "tebako-runtime/adapters/ffi",
-    "fiddle" => "tebako-runtime/adapters/fiddle",
-    "jing" => "tebako-runtime/adapters/jing",
-    "mn2pdf" => "tebako-runtime/adapters/mn2pdf",
-    "mnconvert" => "tebako-runtime/adapters/mnconvert",
     "net/http" => "tebako-runtime/adapters/net-http",
     "sassc" => "tebako-runtime/adapters/sassc",
     "sinatra" => "tebako-runtime/adapters/sinatra"

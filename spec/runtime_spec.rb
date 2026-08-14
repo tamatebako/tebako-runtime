@@ -116,57 +116,6 @@ RSpec.describe TebakoRuntime do
     expect(ref).to eq("\"#{File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "test1.file")}\"")
   end
 
-  it "provides an adapter for fiddle gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with("test_fiddle")
-    require "fiddle"
-    expect(Fiddle::Handle).to receive(:new).and_return(double("Fiddle::Handle"))
-    Fiddle.dlopen("test_fiddle")
-  end
-
-  it "provides an adapter for ffi gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with("test_fiddle")
-    require "fiddle"
-    expect(Fiddle::Handle).to receive(:new).and_return(double("Fiddle::Handle"))
-    Fiddle.dlopen("test_fiddle")
-  end
-
-  it "provides an adapter for ffi gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with("test_ffi")
-    require "ffi"
-    FFI.map_library_name("test_ffi")
-  end
-
-  it "provides an adapter for jing gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS = File.join(__dir__, "fixtures", "jing")
-    test_schema = File.join(TebakoRuntime::COMPILER_MEMFS, "schema.rnc")
-    test_xml = File.join(TebakoRuntime::COMPILER_MEMFS, "valid.xml")
-
-    expect(TebakoRuntime).to receive(:extract_memfs)
-      .with(File.join(TebakoRuntime.full_gem_path("ruby-jing"), "lib",
-                      "jing-20091111.jar")).and_call_original
-    require "jing"
-    expect(TebakoRuntime).to receive(:extract_memfs).with(test_schema, { wild: true }).and_call_original
-    j = Jing.new(test_schema)
-    expect(TebakoRuntime).to receive(:extract_memfs).with(test_xml).and_call_original
-    j.validate(test_xml)
-  end
-
-  it "provides an adapter for mn2pdf gem" do
-    fake_jar_path = "/tmp/mn2pdf.jar"
-    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(
-                                                            TebakoRuntime.full_gem_path("mn2pdf"), "bin", "mn2pdf.jar"
-                                                          )).and_return(fake_jar_path)
-    require "mn2pdf"
-    expect(Jvm::MN2PDF_JAR_PATH).to eq(fake_jar_path)
-  end
-
-  it "provides an adapter for mnconvert gem" do
-    expect(TebakoRuntime).to receive(:extract_memfs).with(File.join(TebakoRuntime.full_gem_path("mnconvert"), "bin",
-                                                                    "mnconvert.jar")).and_call_original
-    require "mnconvert"
-  end
-
   it "provides an adapter for net/http gem" do
     TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
     TebakoRuntime::COMPILER_MEMFS = File.join(TebakoRuntime.full_gem_path("tebako-runtime"), "lib")
