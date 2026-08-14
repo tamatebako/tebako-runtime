@@ -138,50 +138,5 @@ RSpec.describe TebakoRuntime do
     expect(http.ca_file).to eq(File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE, "cacert.pem.mozilla"))
     expect(http.verify_mode).to eq(OpenSSL::SSL::VERIFY_PEER)
   end
-
-  it "provides an adapter for sassc gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS = __dir__
-
-    require "sassc"
-    SassC.load_paths << File.join(TebakoRuntime::COMPILER_MEMFS, "fixtures")
-    expect(FileUtils).to receive(:cp_r).with(File.join(TebakoRuntime::COMPILER_MEMFS, "fixtures", "."),
-                                             File.join(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE,
-                                                       "fixtures")).and_call_original
-    SassC::Engine.new("@import 'style/all.scss'", style: :compressed).render
-  end
-
-  it "provides a pre-processor for seven-zip gem" do
-    sevenz_libs = RUBY_PLATFORM =~ /mswin|mingw/ ? ["7z.dll", "7z64.dll"] : ["7z.so"]
-    sevenz_paths = sevenz_libs.map do |sevenz_lib|
-      File.join(TebakoRuntime.full_gem_path("seven-zip"), "lib", "seven_zip_ruby", sevenz_lib).to_s
-    end
-    sevenz_new_folder = TebakoRuntime::COMPILER_MEMFS_LIB_CACHE / "seven_zip_ruby"
-
-    expect(FileUtils).to receive(:cp).exactly(sevenz_libs.size).times.and_wrap_original do |orig, source, destination|
-      if RUBY_PLATFORM =~ /mswin|mingw/
-        expect(sevenz_paths.map(&:downcase)).to include(source.downcase) # Case-insensitive comparison for Windows
-        expect(destination.to_s.casecmp(sevenz_new_folder.to_s)).to eq(0)
-      else
-        expect(sevenz_paths).to include(source) # Case-sensitive comparison for other platforms
-        expect(destination).to eq(sevenz_new_folder)
-      end
-      orig.call(source, destination)
-    end
-
-    require "seven_zip_ruby"
-
-    expect($LOAD_PATH).to include(TebakoRuntime::COMPILER_MEMFS_LIB_CACHE.to_s)
-  end
-
-  it "provides an adapter for sinatra gem" do
-    TebakoRuntime.send(:remove_const, :COMPILER_MEMFS) if defined?(TebakoRuntime::COMPILER_MEMFS)
-    TebakoRuntime::COMPILER_MEMFS = __dir__
-
-    require "sinatra"
-
-    expect(Sinatra::Application.app_file).to eq(File.expand_path(__FILE__))
-    Sinatra::Application.run = false
-  end
 end
 # rubocop:enable Metrics/BlockLength

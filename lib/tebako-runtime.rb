@@ -36,15 +36,19 @@ require_relative "tebako-runtime/memfs"
 # - an option to run some pre-processing 'BEFORE'
 # - an option to implement adapter 'AFTER'
 module TebakoRuntime
-  PRE_REQUIRE_MAP = {
-    "excavate" => "tebako-runtime/pre/excavate",
-    "seven_zip_ruby" => "tebako-runtime/pre/seven-zip"
-  }.freeze
+  # Spec 22 class L: a native library that loads from a mounted image is
+  # materialized and loaded by the runtime's interposed dlopen/dln_load —
+  # a generic runtime concern, never a per-gem pre-require. The map ships
+  # empty; the require-hook mechanism itself stays (spec 22 §7).
+  PRE_REQUIRE_MAP = {}.freeze
 
   POST_REQUIRE_MAP = {
-    "net/http" => "tebako-runtime/adapters/net-http",
-    "sassc" => "tebako-runtime/adapters/sassc",
-    "sinatra" => "tebako-runtime/adapters/sinatra"
+    # Spec 22 class R (§4): OpenSSL reads the CA cert through its own IO,
+    # outside the interpreter's patched IO. This adapter — and lib/cert/
+    # with it — stays until the env image declares `materialize:` for the
+    # cert and ships an image-owned OpenSSL default pointing at the
+    # materialized location (plan task R3); both die together then.
+    "net/http" => "tebako-runtime/adapters/net-http"
   }.freeze
 
   def self.full_gem_path(gem)

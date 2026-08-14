@@ -21,16 +21,6 @@ memory filesystem.  Tebako shall offload required file from memfs to temporary f
 
 tebako-runtime (this Gem) provides support for known Gems that use system calls to access executable or data files.
 
-== Supported Gems
-
-* https://rubygems.org/gems/excavate/[excavate]
-* https://rubygems.org/gems/jing[jing]
-* https://rubygems.org/gems/mn2pdf[mn2pdf]
-* https://rubygems.org/gems/mnconvert[mnconvert]
-* https://rubygems.org/gems/ruby-jing[ruby-jing]
-* https://rubygems.org/gems/sassc[sassc]
-* https://rubygems.org/gems/seven-zip[seven-zip]
-
 == Additional features
 In addition to gem support tebako-runtime provides a set of utilities to help with tebako image creation:
 
